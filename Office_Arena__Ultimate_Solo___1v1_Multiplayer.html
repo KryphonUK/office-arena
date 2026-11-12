@@ -1,0 +1,3188 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-type" content="tool">
+<meta name="design-style" content="carbon">
+<title>WHITEHALL RECON // Tactical Office Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+<style>
+:root {
+  color-scheme: light dark;
+  --background: #f8f9fa;
+  --surface-container-low: #ffffff;
+  --surface-container: #ffffff;
+  --surface-container-high: #e9ecef;
+  --on-surface: #12161a;
+  --on-surface-variant: #505a64;
+  --outline: #8c96a0;
+  --outline-variant: #d8dee4;
+  --primary: #0f62fe;
+  --on-primary: #ffffff;
+  --primary-container: #d0e2ff;
+  --on-primary-container: #001d6c;
+  --secondary: #525e6a;
+  --tertiary: #198038;
+  --on-tertiary: #ffffff;
+  --error: #da1e28;
+  --on-error: #ffffff;
+  --warning: #f1c21b;
+  --on-warning: #161616;
+  --data-1: #0f62fe;
+  --data-2: #8a3ffc;
+  --data-3: #007d79;
+  --data-4: #ee538b;
+  --data-context: #8c96a0;
+  --font-headline: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-label: 'IBM Plex Mono', monospace;
+  --rounded: 0.125rem;
+  --rounded-lg: 0.25rem;
+  --rounded-full: 9999px;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --rule: 1px solid var(--outline-variant);
+  --field-rule: 1px solid var(--outline);
+  --indicator: 2px solid var(--primary);
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 120ms;
+  --dur-short: 240ms;
+}
+
+[data-theme="tactical-dark"] {
+  --background: #111418;
+  --surface-container-low: #181d24;
+  --surface-container: #1e242c;
+  --surface-container-high: #2b333e;
+  --on-surface: #f2f5f8;
+  --on-surface-variant: #a2adb8;
+  --outline: #5c6773;
+  --outline-variant: #2d3540;
+  --primary: #4589ff;
+  --on-primary: #001438;
+  --primary-container: #002d9c;
+  --on-primary-container: #d0e2ff;
+  --secondary: #8794a1;
+  --tertiary: #42be65;
+  --on-tertiary: #04270c;
+  --error: #fa4d56;
+  --on-error: #ffffff;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --rule: 1px solid var(--outline-variant);
+  --field-rule: 1px solid var(--outline);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: clip;
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+/* Header & Mission Banner */
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--surface-container);
+  border: var(--rule);
+  border-left: 4px solid var(--primary);
+  box-shadow: var(--shadow-1);
+}
+
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.classification-tag {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.system-title {
+  font-family: var(--font-headline);
+  font-size: 1.4rem;
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: -0.01em;
+  color: var(--on-surface);
+}
+
+.system-title strong {
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.sys-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Carbon Button Archetypes */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  height: 38px;
+  padding: 0 var(--space-md);
+  font-family: var(--font-headline);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--rounded);
+  transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--outline);
+  color: var(--on-surface);
+}
+
+.btn-secondary:hover {
+  background-color: var(--surface-container-high);
+}
+
+.btn-subtle {
+  background-color: transparent;
+  color: var(--on-surface-variant);
+  border: 1px solid transparent;
+}
+
+.btn-subtle:hover {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.btn-sm {
+  height: 30px;
+  padding: 0 var(--space-sm);
+  font-size: 0.75rem;
+}
+
+.btn-success {
+  background-color: var(--tertiary);
+  color: var(--on-tertiary);
+}
+
+.btn-success:hover {
+  filter: brightness(1.1);
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: var(--rounded);
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+}
+
+.badge-blue {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  border-color: var(--primary);
+}
+
+.badge-green {
+  background-color: rgba(25, 128, 56, 0.15);
+  color: var(--tertiary);
+  border-color: var(--tertiary);
+}
+
+.badge-amber {
+  background-color: rgba(241, 194, 27, 0.2);
+  color: var(--on-warning);
+  border-color: var(--warning);
+}
+
+/* Mission Navigation Bar */
+.nav-deck {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  background-color: var(--surface-container-high);
+  padding: 2px;
+  border: var(--rule);
+  overflow-x: auto;
+  border-radius: var(--rounded);
+}
+
+.nav-tab {
+  flex: 1 0 auto;
+  min-width: 140px;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--surface-container);
+  border: none;
+  font-family: var(--font-headline);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--dur-micro) var(--ease-out);
+  position: relative;
+  text-align: left;
+}
+
+.nav-tab:hover {
+  background-color: var(--surface-container-low);
+  color: var(--on-surface);
+}
+
+.nav-tab.active {
+  background-color: var(--surface-container-low);
+  color: var(--on-surface);
+  font-weight: 600;
+}
+
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--primary);
+}
+
+/* Score & State HUD */
+.hud-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-sm);
+}
+
+.hud-tile {
+  background-color: var(--surface-container);
+  border: var(--rule);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--shadow-1);
+}
+
+.hud-label {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--on-surface-variant);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hud-val {
+  font-family: var(--font-label);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+}
+
+/* Main Arena Viewport */
+.arena-container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-md);
+  min-height: 540px;
+}
+
+@media (max-width: 900px) {
+  .arena-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-panel {
+  background-color: var(--surface-container);
+  border: var(--rule);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-1);
+  min-width: 0;
+  position: relative;
+}
+
+.side-panel {
+  background-color: var(--surface-container);
+  border: var(--rule);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-1);
+}
+
+/* Modals & Dialog replacements (Inline drawers / notifications) */
+.inline-banner {
+  padding: var(--space-sm) var(--space-md);
+  border: var(--rule);
+  border-left: 4px solid var(--primary);
+  background-color: var(--surface-container-high);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.inline-banner.success {
+  border-left-color: var(--tertiary);
+}
+
+.inline-banner.danger {
+  border-left-color: var(--error);
+}
+
+/* Quiz Specific Cards & Grids */
+.quiz-media-box {
+  width: 100%;
+  min-height: 220px;
+  background-color: var(--surface-container-low);
+  border: var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--space-md);
+  overflow: hidden;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 600px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.option-btn {
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  padding: var(--space-md);
+  text-align: left;
+  font-family: var(--font-headline);
+  font-size: 0.9rem;
+  color: var(--on-surface);
+  cursor: pointer;
+  border-radius: var(--rounded);
+  transition: all var(--dur-micro) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.option-btn.selected-correct {
+  background-color: var(--tertiary) !important;
+  color: #ffffff !important;
+  border-color: var(--tertiary) !important;
+}
+
+.option-btn.selected-incorrect {
+  background-color: var(--error) !important;
+  color: #ffffff !important;
+  border-color: var(--error) !important;
+}
+
+.option-meta {
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  opacity: 0.8;
+  letter-spacing: 0.04em;
+}
+
+/* Connect 4 Board */
+.c4-board {
+  display: inline-grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 8px;
+  background-color: #0043ce;
+  padding: 14px;
+  border-radius: var(--rounded-lg);
+  margin: 0 auto;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.c4-slot {
+  width: 52px;
+  height: 52px;
+  background-color: var(--background);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.c4-slot:hover {
+  transform: scale(1.05);
+}
+
+.c4-slot.p1-chip {
+  background: radial-gradient(circle at 35% 35%, #ff8389, #da1e28);
+}
+
+.c4-slot.p2-chip {
+  background: radial-gradient(circle at 35% 35%, #fddc69, #d2a106);
+}
+
+.c4-slot.win-chip {
+  box-shadow: 0 0 16px #42be65, inset 0 0 10px #ffffff;
+  animation: pulse-ring 1s infinite alternate;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); }
+  100% { transform: scale(1.08); }
+}
+
+@media (max-width: 520px) {
+  .c4-slot {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Quick Draw Standoff */
+.duel-arena {
+  width: 100%;
+  min-height: 320px;
+  background-color: var(--surface-container-low);
+  border: var(--rule);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.duel-signal {
+  font-family: var(--font-label);
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.duel-signal.ready {
+  color: var(--on-surface-variant);
+}
+
+.duel-signal.steady {
+  color: var(--warning);
+}
+
+.duel-signal.fire {
+  color: var(--error);
+  animation: flash-fire 0.1s alternate infinite;
+}
+
+@keyframes flash-fire {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.04); }
+}
+
+.duel-trigger-btn {
+  width: 100%;
+  max-width: 440px;
+  height: 64px;
+  font-size: 1.25rem;
+  font-family: var(--font-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Camo Swatch Visual Canvas */
+.camo-canvas-preview {
+  width: 100%;
+  height: 220px;
+  border: var(--rule);
+  border-radius: var(--rounded);
+  background-color: #2b333e;
+  image-rendering: pixelated;
+}
+
+/* Specimen Info Table */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--font-headline);
+}
+
+.spec-table th, .spec-table td {
+  padding: 6px 10px;
+  border-bottom: var(--rule);
+  text-align: left;
+}
+
+.spec-table th {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container-high);
+}
+
+/* Chat & Activity Ticker */
+.activity-log {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  padding-right: 4px;
+}
+
+.log-entry {
+  padding: 4px 6px;
+  background-color: var(--surface-container-low);
+  border-left: 2px solid var(--outline);
+}
+
+.log-entry.system {
+  border-left-color: var(--primary);
+}
+
+.log-entry.kill {
+  border-left-color: var(--error);
+}
+
+.log-entry.point {
+  border-left-color: var(--tertiary);
+}
+
+/* Lobby Modal / Drawer */
+.lobby-box {
+  background-color: var(--surface-container);
+  border: var(--rule);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.code-display {
+  font-family: var(--font-label);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--surface-container-high);
+  border: 2px dashed var(--primary);
+  text-align: center;
+  color: var(--primary);
+  display: inline-block;
+  user-select: all;
+}
+
+.code-input {
+  height: 44px;
+  font-family: var(--font-label);
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--outline);
+  color: var(--on-surface);
+  border-radius: var(--rounded);
+  width: 180px;
+}
+
+.code-input:focus {
+  outline: 2px solid var(--primary);
+  border-color: var(--primary);
+}
+
+/* Utilities */
+.flex-row { display: flex; align-items: center; gap: var(--space-sm); }
+.flex-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+.flex-col { display: flex; flex-direction: column; gap: var(--space-xs); }
+.text-muted { color: var(--on-surface-variant); }
+.mono { font-family: var(--font-label); }
+.badge-group { display: flex; flex-wrap: wrap; gap: 4px; }
+.hidden { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Top Masthead -->
+  <header class="masthead">
+    <div class="brand-block">
+      <div class="classification-tag">
+        <i data-lucide="shield-alert" style="width:14px;height:14px;"></i>
+        <span>RESTRICTED // MINISTRY OF DEFENCE & OFFICE GAMES REGISTRY</span>
+      </div>
+      <h1 class="system-title"><strong>WHITEHALL RECON</strong> : Office Tactical Arcade</h1>
+    </div>
+
+    <div class="sys-controls">
+      <div id="connection-status-badge" class="badge badge-blue">
+        <i data-lucide="radio" style="width:12px;height:12px;"></i>
+        <span id="connection-status-text">SOLO : DEEP-DESK AI</span>
+      </div>
+
+      <button id="sound-toggle-btn" class="btn btn-secondary btn-sm" onclick="handleSoundToggle()" aria-label="Toggle Sound">
+        <i id="sound-icon" data-lucide="volume-2" style="width:14px;height:14px;"></i>
+        <span id="sound-label">Audio: ON</span>
+      </button>
+
+      <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" onclick="handleThemeToggle()" aria-label="Toggle Night Operations Mode">
+        <i id="theme-icon" data-lucide="moon" style="width:14px;height:14px;"></i>
+        <span id="theme-label">Night Ops</span>
+      </button>
+
+      <button id="lobby-btn" class="btn btn-primary btn-sm" onclick="handleOpenLobbyModal()">
+        <i data-lucide="users" style="width:14px;height:14px;"></i>
+        <span>Multiplayer Lobby</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Deck -->
+  <nav class="nav-deck" aria-label="Game Modes">
+    <button class="nav-tab active" onclick="switchGameMode('bone')" id="tab-bone">
+      <i data-lucide="activity" style="width:16px;height:16px;"></i>
+      <span>Guess the Bone</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('death')" id="tab-death">
+      <i data-lucide="skull" style="width:16px;height:16px;"></i>
+      <span>Celebrity Mortality</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('trivia')" id="tab-trivia">
+      <i data-lucide="award" style="width:16px;height:16px;"></i>
+      <span>British Showdown</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('weapon')" id="tab-weapon">
+      <i data-lucide="crosshair" style="width:16px;height:16px;"></i>
+      <span>Guess the Weapon</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('camo')" id="tab-camo">
+      <i data-lucide="eye" style="width:16px;height:16px;"></i>
+      <span>Guess the Camo</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('connect4')" id="tab-connect4">
+      <i data-lucide="grid" style="width:16px;height:16px;"></i>
+      <span>Connect 4 Duel</span>
+    </button>
+    <button class="nav-tab" onclick="switchGameMode('quickdraw')" id="tab-quickdraw">
+      <i data-lucide="zap" style="width:16px;height:16px;"></i>
+      <span>Quick Draw Standoff</span>
+    </button>
+  </nav>
+
+  <!-- Tactical HUD Statistics -->
+  <section class="hud-strip" aria-label="Game Performance Telemetry">
+    <div class="hud-tile">
+      <div class="hud-label">
+        <span>CURRENT OPERATOR</span>
+        <i data-lucide="user-check" style="width:14px;height:14px;"></i>
+      </div>
+      <div class="hud-val" id="hud-player-name">OFFICER SMITH</div>
+      <div class="text-muted mono" style="font-size:0.7rem;" id="hud-mode-summary">SOLO WORKSTATION</div>
+    </div>
+
+    <div class="hud-tile">
+      <div class="hud-label">
+        <span>OPERATOR SCORE (P1)</span>
+        <span class="badge badge-green" id="hud-streak-badge">0 STREAK</span>
+      </div>
+      <div class="hud-val" id="hud-p1-score">0 PTS</div>
+      <div class="text-muted mono" style="font-size:0.7rem;" id="hud-accuracy">ACCURACY: --%</div>
+    </div>
+
+    <div class="hud-tile">
+      <div class="hud-label">
+        <span id="hud-p2-title">OPPONENT // AI</span>
+        <span class="badge badge-amber" id="hud-p2-status">ACTIVE</span>
+      </div>
+      <div class="hud-val" id="hud-p2-score">0 PTS</div>
+      <div class="text-muted mono" style="font-size:0.7rem;" id="hud-p2-sub">COLLEAGUE PROTOCOL v2.6</div>
+    </div>
+
+    <div class="hud-tile">
+      <div class="hud-label">
+        <span>SESSION TIMING & ROUND</span>
+        <i data-lucide="clock" style="width:14px;height:14px;"></i>
+      </div>
+      <div class="hud-val" id="hud-round-indicator">ROUND 1/10</div>
+      <div class="text-muted mono" style="font-size:0.7rem;" id="hud-match-timer">00:00 ELAPSED</div>
+    </div>
+  </section>
+
+  <!-- Interactive Arena Grid -->
+  <main class="arena-container">
+    <!-- Active Game Stage Area -->
+    <section class="stage-panel" id="main-stage-panel">
+      <!-- Top Stage Bar -->
+      <div class="flex-between">
+        <div>
+          <span class="badge badge-blue mono" id="stage-badge">INTELLIGENCE BRIEFING</span>
+          <h2 id="stage-headline" style="margin:4px 0 0; font-size:1.25rem; font-weight:600;">Comparative Osteology Reconnaissance</h2>
+        </div>
+        <div class="flex-row">
+          <button class="btn btn-secondary btn-sm" onclick="restartCurrentGame()" id="restart-round-btn">
+            <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i>
+            <span>Restart Set</span>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="handleNextQuestion()" id="next-action-btn">
+            <span>Next Target</span>
+            <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notice Banner for Round Results or Alerts -->
+      <div id="stage-banner" class="inline-banner hidden">
+        <span id="stage-banner-text">Correct identification verified. Intelligence confirmed.</span>
+        <button class="btn btn-secondary btn-sm" onclick="dismissBanner()">Dismiss</button>
+      </div>
+
+      <!-- DYNAMIC GAME CONTENT SECTIONS -->
+
+      <!-- 1. Guess the Bone -->
+      <div id="game-bone-container" class="game-view-module">
+        <div class="quiz-media-box" id="bone-diagram-box">
+          <!-- Dynamic SVG diagram inserted via JS -->
+          <svg id="bone-svg-canvas" viewBox="0 0 400 200" style="width:100%; max-height:220px;" aria-label="Anatomical Bone Specimen Illustration"></svg>
+        </div>
+
+        <div style="margin-top:var(--space-sm);">
+          <div class="flex-between">
+            <span class="mono text-muted" id="bone-specimen-id">SPECIMEN ARCHIVE #B-104</span>
+            <span class="badge" id="bone-category-tag">MACROSCOPIC LONG BONE</span>
+          </div>
+          <p id="bone-anatomical-clue" style="font-size:0.95rem; margin:6px 0 14px; font-weight:400; line-height:1.6;">
+            Examine the articular surfaces and cortical geometry. Notice the diagnostic surface landmarks and cross-sectional density.
+          </p>
+        </div>
+
+        <div class="options-grid" id="bone-options-grid">
+          <!-- Populated dynamically: Human, Canine, Feline, Equine, Bovine/Ovine, Avian -->
+        </div>
+      </div>
+
+      <!-- 2. How Did the Celebrity Die? -->
+      <div id="game-death-container" class="game-view-module hidden">
+        <div class="quiz-media-box" style="background:linear-gradient(135deg, var(--surface-container-high), var(--surface-container-low)); flex-direction:column; justify-content:center; gap:8px;">
+          <div class="badge badge-amber mono" id="death-era-tag">ERA: 20TH CENTURY</div>
+          <div id="death-person-name" style="font-size:1.8rem; font-weight:700; letter-spacing:-0.01em;">Nikola Tesla</div>
+          <div id="death-person-role" class="text-muted mono" style="font-size:0.85rem;">Electrical Engineer & Visionary Inventor (1856–1943)</div>
+        </div>
+
+        <p id="death-context-story" style="font-size:0.95rem; margin:12px 0 16px; line-height:1.6;">
+          Died at the age of 86 in New York City during the height of the Second World War. What were the verified clinical circumstances of his passing?
+        </p>
+
+        <div class="options-grid" id="death-options-grid">
+          <!-- Options populated dynamically -->
+        </div>
+      </div>
+
+      <!-- 3. British Trivia Showdown -->
+      <div id="game-trivia-container" class="game-view-module hidden">
+        <div class="quiz-media-box" style="flex-direction:column; text-align:center; padding:var(--space-lg); gap:10px;">
+          <div class="badge badge-blue mono" id="trivia-topic-tag">PUB TRIVIA // MILITARY HISTORY</div>
+          <div id="trivia-question-prompt" style="font-size:1.25rem; font-weight:600; max-width:540px; line-height:1.4;">
+            In what year after the Second World War was National Service formally abolished across the United Kingdom?
+          </div>
+        </div>
+
+        <div class="options-grid" id="trivia-options-grid" style="margin-top:var(--space-md);">
+          <!-- 4 Multiple choice options -->
+        </div>
+      </div>
+
+      <!-- 4. Guess the Weapon -->
+      <div id="game-weapon-container" class="game-view-module hidden">
+        <div class="quiz-media-box" style="background-color:#161c22; min-height:220px;">
+          <!-- SVG silhouette/schematic for hardware -->
+          <svg id="weapon-svg-canvas" viewBox="0 0 500 200" style="width:100%; max-height:200px;" aria-label="Military Weapon Silhouette"></svg>
+        </div>
+
+        <div class="flex-between" style="margin-top:var(--space-sm);">
+          <span class="mono text-muted" id="weapon-class-tag">CATEGORY: INFANTRY SMALL ARMS</span>
+          <span class="badge badge-blue mono" id="weapon-origin-tag">ORIGIN: UNITED KINGDOM</span>
+        </div>
+
+        <p id="weapon-intel-dossier" style="font-size:0.9rem; margin:8px 0 14px; line-height:1.5;">
+          Standard issue bullpup assault rifle fitted with SUSAT or ACOG optics. Tested extensively in Operation Granby and Herrick.
+        </p>
+
+        <div class="options-grid" id="weapon-options-grid">
+          <!-- Options -->
+        </div>
+      </div>
+
+      <!-- 5. Guess the Camo -->
+      <div id="game-camo-container" class="game-view-module hidden">
+        <div class="quiz-media-box" style="padding:0;">
+          <canvas id="camo-render-canvas" class="camo-canvas-preview" width="600" height="240" aria-label="Military Camouflage Fabric Swatch"></canvas>
+        </div>
+
+        <div class="flex-between" style="margin-top:var(--space-sm);">
+          <span class="mono text-muted" id="camo-family-tag">FAMILY: DISRUPTIVE & PIXELATED</span>
+          <span class="badge badge-green mono" id="camo-climate-tag">TERRAIN: MULTI-ENVIRONMENT</span>
+        </div>
+
+        <p id="camo-historical-clue" style="font-size:0.9rem; margin:8px 0 14px; line-height:1.5;">
+          Combines the micro-gradient colour transitions of modern multi-theatre synthetics with distinctive flowing shapes derived from classic British DPM.
+        </p>
+
+        <div class="options-grid" id="camo-options-grid">
+          <!-- Camo Options -->
+        </div>
+      </div>
+
+      <!-- 6. Connect 4 Duel -->
+      <div id="game-connect4-container" class="game-view-module hidden">
+        <div class="flex-between" style="margin-bottom:var(--space-sm);">
+          <div class="flex-row">
+            <span class="badge badge-blue" id="c4-turn-indicator">P1 TURN (RED)</span>
+            <span class="mono text-muted" id="c4-match-stats">SERIES: P1 0 - 0 P2</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="resetConnect4Board()">
+            <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i>
+            <span>Clear Grid</span>
+          </button>
+        </div>
+
+        <div style="display:flex; justify-content:center; width:100%; overflow-x:auto; padding:var(--space-xs) 0;">
+          <div id="connect4-board" class="c4-board" role="grid" aria-label="Connect 4 Game Grid">
+            <!-- 42 slots generated by JS -->
+          </div>
+        </div>
+
+        <div id="c4-status-announcement" class="text-muted mono" style="text-align:center; margin-top:var(--space-sm); font-size:0.85rem;">
+          Click any column slot to drop tactical marker. Four in a row wins.
+        </div>
+      </div>
+
+      <!-- 7. Quick Draw Standoff -->
+      <div id="game-quickdraw-container" class="game-view-module hidden">
+        <div class="duel-arena" id="duel-arena-box">
+          <div class="badge badge-amber mono" id="duel-stage-sub">STANDOFF IN PROGRESS</div>
+          <div id="duel-signal-text" class="duel-signal ready">HOLSTER ARMS...</div>
+          <div id="duel-sub-cue" class="text-muted mono" style="font-size:0.85rem;">Wait for the FIRE signal. False trigger draws immediate penalty!</div>
+
+          <button id="duel-fire-btn" class="btn btn-primary duel-trigger-btn" onpointerdown="handleDuelPlayerFire()">
+            <i data-lucide="zap" style="width:20px;height:20px;"></i>
+            <span>TRIGGER DRAW (SPACEBAR / CLICK)</span>
+          </button>
+        </div>
+
+        <div class="hud-strip" style="margin-top:var(--space-md);">
+          <div class="hud-tile">
+            <span class="hud-label">YOUR REACTION SPEED</span>
+            <span class="hud-val" id="duel-p1-reaction">--- MS</span>
+          </div>
+          <div class="hud-tile">
+            <span class="hud-label">OPPONENT / BOT SPEED</span>
+            <span class="hud-val" id="duel-p2-reaction">--- MS</span>
+          </div>
+        </div>
+
+        <div class="flex-between" style="margin-top:var(--space-xs);">
+          <button class="btn btn-secondary btn-sm" onclick="startDuelRound()">
+            <i data-lucide="play" style="width:12px;height:12px;"></i>
+            <span>Initiate New Standoff</span>
+          </button>
+          <span class="mono text-muted" id="duel-record-cue">FASTEST DRAW TODAY: 218 MS</span>
+        </div>
+      </div>
+
+      <!-- Explanatory Dossier Footer for Educational Depth -->
+      <div id="stage-dossier-card" class="hud-tile" style="margin-top:auto; border-left:3px solid var(--primary);">
+        <div class="hud-label">
+          <span>INTEL DOSSIER & VERIFIED HISTORICAL RECORD</span>
+          <i data-lucide="book-open" style="width:13px;height:13px;"></i>
+        </div>
+        <div id="dossier-content" style="font-size:0.82rem; line-height:1.55; color:var(--on-surface);">
+          Select an option to authenticate intelligence and decrypt detailed comparative analysis.
+        </div>
+      </div>
+    </section>
+
+    <!-- Side Reconnaissance & Multiplayer Logistics Panel -->
+    <aside class="side-panel">
+      <!-- Active Mode Card -->
+      <div class="hud-tile" style="border-top:3px solid var(--primary);">
+        <div class="hud-label">
+          <span>LOBBY PROTOCOL</span>
+          <span class="badge badge-green" id="lobby-state-badge">LAN / WEBRTC</span>
+        </div>
+        <div style="margin:4px 0;">
+          <strong id="lobby-mode-name">Solo Reconnaissance</strong>
+        </div>
+        <p class="text-muted" style="font-size:0.75rem; margin:0;" id="lobby-mode-desc">
+          Engaging tactical colleague bot. Challenge office mates via room code.
+        </p>
+      </div>
+
+      <!-- Specimen Detail Specs Table -->
+      <div>
+        <div class="hud-label" style="margin-bottom:6px;">
+          <span>SPECIMEN TAXONOMY</span>
+          <i data-lucide="layers" style="width:12px;height:12px;"></i>
+        </div>
+        <table class="spec-table" id="spec-data-table">
+          <tbody>
+            <tr>
+              <th>Domain</th>
+              <td id="spec-meta-domain">Comparative Biology</td>
+            </tr>
+            <tr>
+              <th>Classification</th>
+              <td id="spec-meta-class">Endochondral Element</td>
+            </tr>
+            <tr>
+              <th>Key Marker</th>
+              <td id="spec-meta-marker">Pterion & Trochlea</td>
+            </tr>
+            <tr>
+              <th>Combat Note</th>
+              <td id="spec-meta-note">Office Lunch Match</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Live Activity Ticker -->
+      <div style="flex:1; display:flex; flex-direction:column; min-height:160px;">
+        <div class="hud-label" style="margin-bottom:6px;">
+          <span>TACTICAL DISPATCH FEED</span>
+          <span class="badge" id="log-count-badge">LOG ACTIVE</span>
+        </div>
+        <div class="activity-log" id="activity-log-feed" role="log" aria-live="polite">
+          <div class="log-entry system">[SYSTEM] Whitehall Recon Station initialized. Ready.</div>
+          <div class="log-entry system">[INTEL] Loaded osteology, mortality, armory, and camouflage banks.</div>
+        </div>
+      </div>
+
+      <!-- Colleague Bot Difficulty Selector -->
+      <div class="flex-col" id="bot-config-box">
+        <label for="bot-difficulty-select" class="hud-label" style="display:block;">AI COLLEAGUE DIFFICULTY</label>
+        <select id="bot-difficulty-select" class="btn btn-secondary btn-sm" style="width:100%; text-align:left;" onchange="handleBotDifficultyChange(this.value)">
+          <option value="easy">Intern (Slow Reflexes, 40% Accuracy)</option>
+          <option value="medium" selected>Desk Colleague (Balanced, 70% Accuracy)</option>
+          <option value="hard">Senior Civil Servant (Fast, 90% Accuracy)</option>
+          <option value="expert">Ministry Cyber-Core (Lightning, 98% Accuracy)</option>
+        </select>
+      </div>
+    </aside>
+  </main>
+
+  <!-- MULTIPLAYER MODAL / INLINE DRAWER -->
+  <div id="multiplayer-drawer" class="lobby-box hidden">
+    <div class="flex-between">
+      <div class="flex-row">
+        <i data-lucide="network" style="width:20px;height:20px; color:var(--primary);"></i>
+        <h3 style="margin:0; font-size:1.15rem; font-weight:600;">Multiplayer Network Hub (WebRTC / Local Subnet)</h3>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="handleCloseLobbyModal()">Close Hub</button>
+    </div>
+
+    <p style="font-size:0.85rem; margin:0;" class="text-muted">
+      Challenge an office mate on another computer or adjacent desk browser. Connect via instant 4-character Room Code.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); margin-top:var(--space-xs);">
+      <!-- Host Card -->
+      <div class="hud-tile">
+        <div class="hud-label"><span>HOST MISSION LOBBY</span><i data-lucide="server" style="width:12px;height:12px;"></i></div>
+        <p style="font-size:0.75rem; margin:4px 0;">Share this 4-character code with your opponent:</p>
+        <div style="text-align:center; margin:var(--space-sm) 0;">
+          <div class="code-display" id="my-room-code-display">----</div>
+        </div>
+        <div class="flex-row">
+          <button class="btn btn-primary btn-sm" style="flex:1;" onclick="handleGenerateRoomCode()">
+            <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i>
+            <span>Generate New Code</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="handleCopyRoomCode()">Copy Code</button>
+        </div>
+      </div>
+
+      <!-- Join Card -->
+      <div class="hud-tile">
+        <div class="hud-label"><span>JOIN OPPONENT'S LOBBY</span><i data-lucide="log-in" style="width:12px;height:12px;"></i></div>
+        <p style="font-size:0.75rem; margin:4px 0;">Enter opponent's 4-character room code:</p>
+        <div style="text-align:center; margin:var(--space-sm) 0;">
+          <input type="text" id="join-room-input" class="code-input" maxlength="4" placeholder="CODE" aria-label="Enter 4-character Room Code">
+        </div>
+        <div class="flex-row">
+          <button class="btn btn-success btn-sm" style="width:100%;" onclick="handleJoinRoom()">
+            <i data-lucide="link" style="width:12px;height:12px;"></i>
+            <span>Connect to Room</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-banner" id="lobby-connection-banner">
+      <span id="lobby-feedback-text">Ready for network transmission. Compatible across office LAN subnets and browser windows.</span>
+      <button class="btn btn-secondary btn-sm" onclick="handleSwitchToSolo()">Play Solo Instead</button>
+    </div>
+  </div>
+</div>
+
+<api-shim></api-shim>
+<script>
+/* ==========================================================================
+   WHITEHALL RECON: AUDIO SYNTHESIS & SOUND EFFECTS ENGINE
+   (Native Web Audio API - Zero External Dependencies)
+   ========================================================================== */
+let audioCtx = null;
+let soundEnabled = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    } catch (e) {
+      console.warn("AudioContext init error:", e);
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  initAudio();
+  if (!audioCtx) return;
+
+  const now = audioCtx.currentTime;
+
+  if (type === 'click') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.04);
+  } else if (type === 'correct') {
+    // Pleasant British victory major chime
+    const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    freqs.forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.setValueAtTime(0.15, now + idx * 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.28);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + idx * 0.06);
+      osc.stop(now + idx * 0.06 + 0.28);
+    });
+  } else if (type === 'wrong') {
+    // Low double buzz
+    [160, 130].forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+      gain.gain.setValueAtTime(0.18, now + idx * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + idx * 0.1);
+      osc.stop(now + idx * 0.1 + 0.12);
+    });
+  } else if (type === 'clink') {
+    // Chip dropping clink
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(950, now);
+    osc.frequency.exponentialRampToValueAtTime(1400, now + 0.03);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.09);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.09);
+  } else if (type === 'gunshot') {
+    // Quick draw pistol shot
+    const bufferSize = audioCtx.sampleRate * 0.15;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.03));
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1200, now);
+    filter.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+    noise.start(now);
+  } else if (type === 'draw_signal') {
+    // Whistle/draw horn
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, now);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
+  }
+}
+
+function handleSoundToggle() {
+  soundEnabled = !soundEnabled;
+  const label = document.getElementById('sound-label');
+  const icon = document.getElementById('sound-icon');
+  if (label) label.textContent = soundEnabled ? 'Audio: ON' : 'Audio: OFF';
+  if (icon) {
+    icon.setAttribute('data-lucide', soundEnabled ? 'volume-2' : 'volume-x');
+    if (window.lucide) lucide.createIcons();
+  }
+  if (soundEnabled) playSound('click');
+  saveTelemetryState();
+}
+
+function handleThemeToggle() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'tactical-dark' ? 'light' : 'tactical-dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if (label) label.textContent = newTheme === 'tactical-dark' ? 'Day Ops' : 'Night Ops';
+  if (icon) {
+    icon.setAttribute('data-lucide', newTheme === 'tactical-dark' ? 'sun' : 'moon');
+    if (window.lucide) lucide.createIcons();
+  }
+  playSound('click');
+  saveTelemetryState();
+}
+
+/* ==========================================================================
+   GLOBAL GAME STATE & TELEMETRY
+   ========================================================================== */
+const gameState = {
+  activeMode: 'bone',
+  isMultiplayer: false,
+  roomCode: '',
+  isHost: true,
+  p1Score: 0,
+  p2Score: 0,
+  streak: 0,
+  questionsAnswered: 0,
+  questionsCorrect: 0,
+  round: 1,
+  totalRounds: 10,
+  botDifficulty: 'medium', // easy, medium, hard, expert
+  startTime: Date.now()
+};
+
+let matchTimerInterval = null;
+let broadcastChannel = null;
+
+function updateHUD() {
+  const p1El = document.getElementById('hud-p1-score');
+  const p2El = document.getElementById('hud-p2-score');
+  const streakEl = document.getElementById('hud-streak-badge');
+  const accEl = document.getElementById('hud-accuracy');
+  const roundEl = document.getElementById('hud-round-indicator');
+
+  if (p1El) p1El.textContent = `${gameState.p1Score} PTS`;
+  if (p2El) p2El.textContent = `${gameState.p2Score} PTS`;
+  if (streakEl) streakEl.textContent = `${gameState.streak} STREAK`;
+
+  if (accEl) {
+    const acc = gameState.questionsAnswered > 0
+      ? Math.round((gameState.questionsCorrect / gameState.questionsAnswered) * 100)
+      : 0;
+    accEl.textContent = `ACCURACY: ${acc}%`;
+  }
+
+  if (roundEl) {
+    roundEl.textContent = `ROUND ${gameState.round}/${gameState.totalRounds}`;
+  }
+}
+
+function logDispatch(msg, type = 'system') {
+  const feed = document.getElementById('activity-log-feed');
+  if (!feed) return;
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${type}`;
+  const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  entry.textContent = `[${time}] ${msg}`;
+  feed.appendChild(entry);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function showBanner(text, isSuccess = true) {
+  const banner = document.getElementById('stage-banner');
+  const textEl = document.getElementById('stage-banner-text');
+  if (!banner || !textEl) return;
+  textEl.textContent = text;
+  banner.className = `inline-banner ${isSuccess ? 'success' : 'danger'}`;
+  banner.classList.remove('hidden');
+}
+
+function dismissBanner() {
+  const banner = document.getElementById('stage-banner');
+  if (banner) banner.classList.add('hidden');
+}
+
+/* ==========================================================================
+   GAME 1: GUESS THE BONE (COMPARATIVE OSTEOLOGY DATA & LOGIC)
+   ========================================================================== */
+const boneSpecimens = [
+  {
+    id: "B-101",
+    boneName: "Human Pelvis (Os Coxae)",
+    species: "Human",
+    options: ["Human", "Canine (Dog)", "Equine (Horse)", "Avian (Bird)"],
+    morphology: "Flat / Irregular Bone (Endochondral)",
+    categoryTag: "PELVIC GIRDLE",
+    clue: "Broad, basin-shaped ilium flared laterally to support erect trunk posture, weight-bearing acetabulum, and anterior sciatic notch. Bipedal locomotion adaptation.",
+    dossier: "The human pelvis is uniquely bowl-shaped to accommodate bipedal upright walking, with a shortened, expanded ilium that aligns the centre of gravity over the femoral heads. In quadrupeds like dogs or horses, the ilium is elongated and tubular.",
+    svgType: "pelvis_human"
+  },
+  {
+    id: "B-102",
+    boneName: "Canine Skull (Canis lupus familiaris)",
+    species: "Canine (Dog)",
+    options: ["Canine (Dog)", "Feline (Cat)", "Bovine / Ovine", "Human"],
+    morphology: "Craniofacial Complex (Intramembranous/Endochondral)",
+    categoryTag: "CRANIUM & MANDIBLE",
+    clue: "Prominent sagittal crest for temporalis muscle anchorage, elongated rostrum/muzzle, and specialised carnassial shears (upper P4 / lower M1).",
+    dossier: "Canine osteology displays a pronounced sagittal crest and zygomatic arch reflecting masticatory force for biting and gripping. In contrast, feline skulls are significantly shorter and rounder with proportionately larger orbits.",
+    svgType: "canine_skull"
+  },
+  {
+    id: "B-103",
+    boneName: "Equine Cannon Bone (Metacarpal III)",
+    species: "Equine (Horse)",
+    options: ["Equine (Horse)", "Canine (Dog)", "Human", "Avian (Bird)"],
+    morphology: "Long Bone (Endochondral)",
+    categoryTag: "DISTAL FORELIMB",
+    clue: "Massive single functional third metacarpal with vestigial medial and lateral 'splint bones' (metacarpals II and IV). Unguligrade cursorial adaptation.",
+    dossier: "Horses evolved from five-toed ancestors (Hyracotherium) to monodactyl runners. The third metacarpal sustains massive ground-reaction forces at gallop, flanked by reduced splints.",
+    svgType: "horse_cannon"
+  },
+  {
+    id: "B-104",
+    boneName: "Avian Keeled Sternum & Furcula",
+    species: "Avian (Bird)",
+    options: ["Avian (Bird)", "Feline (Cat)", "Human", "Bovine / Ovine"],
+    morphology: "Pneumatic / Flat Bone",
+    categoryTag: "AXIAL SKELETON",
+    clue: "Deep, blade-like central carina (keel) for vast pectoral flight muscle origin, accompanied by fused clavicles forming an elastic wishbone (furcula).",
+    dossier: "Flight demands immense mechanical output. The avian keel anchors the pectoralis major and supracoracoideus muscles, while pneumatic trabeculae keep bone mass light yet rigid.",
+    svgType: "avian_sternum"
+  },
+  {
+    id: "B-105",
+    boneName: "Feline Femur & Retractile Claws",
+    species: "Feline (Cat)",
+    options: ["Feline (Cat)", "Canine (Dog)", "Avian (Bird)", "Equine (Horse)"],
+    morphology: "Long Bone with Ungual Phalanx",
+    categoryTag: "APPENDICULAR LIMB",
+    clue: "Slender femoral shaft with cylindrical head, paired with distal phalanges featuring dorsal elastic ligaments and hooded ungual processes for claw retraction.",
+    dossier: "Feline osteology prioritises flexural compliance and silent stalk-and-pounce dynamics. Ungual processes fold into sheaths when relaxed, preserving razor-sharp claw margins.",
+    svgType: "feline_limb"
+  },
+  {
+    id: "B-106",
+    boneName: "Bovine / Ovine Mandible with Dental Pad",
+    species: "Bovine / Ovine",
+    options: ["Bovine / Ovine", "Canine (Dog)", "Equine (Horse)", "Human"],
+    morphology: "Viscerocranial Bone",
+    categoryTag: "RUMINANT CRANIUM",
+    clue: "Absence of upper incisors; lower spatulate incisors shear against a keratinous dental pad, followed by a wide diastema before selenodont hypsodont molars.",
+    dossier: "Ruminants (cattle and sheep) possess specialised crescent-ridged (selenodont) molar teeth designed for side-to-side grinding of fibrous forage, lacking upper canines or incisors.",
+    svgType: "bovine_skull"
+  },
+  {
+    id: "B-107",
+    boneName: "Human Cranium with Pterion & Glabella",
+    species: "Human",
+    options: ["Human", "Canine (Dog)", "Feline (Cat)", "Avian (Bird)"],
+    morphology: "Neurocranium (Intramembranous)",
+    categoryTag: "CRANIAL VAULT",
+    clue: "Globular braincase with orthognathic flat face, prominent glabella between superciliary arches, and H-shaped pterion junction over middle meningeal artery groove.",
+    dossier: "The human pterion is an H-shaped suture connecting frontal, parietal, temporal, and sphenoid bones. Blunt force trauma here risks lacerating the middle meningeal artery, precipitating an epidural hematoma.",
+    svgType: "human_skull"
+  }
+];
+
+let currentBoneIdx = 0;
+
+function renderBoneSVG(type) {
+  const svg = document.getElementById('bone-svg-canvas');
+  if (!svg) return;
+
+  if (type === 'pelvis_human') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <path d="M120 70 C140 30, 260 30, 280 70 C295 100, 270 140, 240 160 C210 175, 190 175, 160 160 C130 140, 105 100, 120 70 Z" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <ellipse cx="150" cy="120" rx="22" ry="26" stroke="var(--outline)"/>
+        <ellipse cx="250" cy="120" rx="22" ry="26" stroke="var(--outline)"/>
+        <path d="M185 70 Q200 120 215 70" stroke="var(--outline)"/>
+        <circle cx="200" cy="85" r="8" fill="var(--outline-variant)"/>
+        <text x="200" y="190" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">BIPEDAL PELVIC BASIN (SACROILIAC ARCH)</text>
+      </g>
+    `;
+  } else if (type === 'canine_skull') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <path d="M70 120 L160 115 L220 75 Q260 65 290 85 L320 125 L240 145 L150 145 Z" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <path d="M220 75 Q270 50 300 70" stroke="var(--error)" stroke-width="2"/> <!-- Sagittal Crest -->
+        <circle cx="250" cy="98" r="14" stroke="var(--outline)"/> <!-- Orbit -->
+        <path d="M120 125 L125 140 L135 125 L145 142 L160 125" stroke="var(--on-surface)"/> <!-- Carnassial Teeth -->
+        <text x="200" y="185" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">ELONGATED ROSTRUM & SAGITTAL CREST</text>
+      </g>
+    `;
+  } else if (type === 'horse_cannon') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <rect x="175" y="30" width="50" height="130" rx="6" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <path d="M165 40 L175 45 L175 130" stroke="var(--outline)" stroke-dasharray="3,3"/> <!-- Splint bone II -->
+        <path d="M235 40 L225 45 L225 130" stroke="var(--outline)" stroke-dasharray="3,3"/> <!-- Splint bone IV -->
+        <ellipse cx="200" cy="30" rx="28" ry="10" stroke="var(--primary)"/>
+        <ellipse cx="200" cy="160" rx="30" ry="12" stroke="var(--primary)"/>
+        <text x="200" y="190" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">METACARPAL III CANNON + SPLINT ARRAYS</text>
+      </g>
+    `;
+  } else if (type === 'avian_sternum') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <path d="M110 50 C160 30, 240 30, 290 50 L270 110 L200 165 L130 110 Z" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <path d="M200 45 L200 165" stroke="var(--error)" stroke-width="3"/> <!-- Carina/Keel -->
+        <path d="M140 40 Q200 15 260 40" stroke="var(--tertiary)" stroke-width="2"/> <!-- Furcula -->
+        <text x="200" y="188" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">AVIAN KEEL (CARINA) & FURCULA</text>
+      </g>
+    `;
+  } else {
+    // General anatomical render
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <ellipse cx="200" cy="100" rx="100" ry="60" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <circle cx="160" cy="95" r="18" stroke="var(--outline)"/>
+        <circle cx="240" cy="95" r="18" stroke="var(--outline)"/>
+        <path d="M180 120 Q200 145 220 120" stroke="var(--outline)"/>
+        <text x="200" y="185" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">CRANIOFACIAL OSTEOLOGY PROFILE</text>
+      </g>
+    `;
+  }
+}
+
+function loadBoneQuestion() {
+  const item = boneSpecimens[currentBoneIdx % boneSpecimens.length];
+  const specEl = document.getElementById('bone-specimen-id');
+  const catEl = document.getElementById('bone-category-tag');
+  const clueEl = document.getElementById('bone-anatomical-clue');
+  const grid = document.getElementById('bone-options-grid');
+  const dossierEl = document.getElementById('dossier-content');
+
+  if (specEl) specEl.textContent = `SPECIMEN ARCHIVE #${item.id}`;
+  if (catEl) catEl.textContent = item.categoryTag;
+  if (clueEl) clueEl.textContent = item.clue;
+  if (dossierEl) dossierEl.textContent = "Select an organism above to verify anatomical classification.";
+
+  renderBoneSVG(item.svgType);
+
+  // Update sidebar metadata
+  const mDomain = document.getElementById('spec-meta-domain');
+  const mClass = document.getElementById('spec-meta-class');
+  const mMarker = document.getElementById('spec-meta-marker');
+  const mNote = document.getElementById('spec-meta-note');
+  if (mDomain) mDomain.textContent = "Comparative Osteology";
+  if (mClass) mClass.textContent = item.morphology;
+  if (mMarker) mMarker.textContent = item.categoryTag;
+  if (mNote) mNote.textContent = "Diagnostic Surface Markers";
+
+  if (grid) {
+    grid.innerHTML = '';
+    item.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <strong>${opt}</strong>
+        <span class="option-meta">TAXONOMIC CANDIDATE</span>
+      `;
+      btn.onclick = () => submitBoneAnswer(opt, item);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function submitBoneAnswer(chosen, item) {
+  const grid = document.getElementById('bone-options-grid');
+  if (!grid) return;
+  const buttons = grid.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === item.species;
+  gameState.questionsAnswered++;
+
+  buttons.forEach(b => {
+    const txt = b.querySelector('strong') ? b.querySelector('strong').textContent : '';
+    if (txt === item.species) {
+      b.classList.add('selected-correct');
+    } else if (txt === chosen) {
+      b.classList.add('selected-incorrect');
+    }
+  });
+
+  const dossierEl = document.getElementById('dossier-content');
+  if (dossierEl) {
+    dossierEl.innerHTML = `<strong>${isCorrect ? 'INTEL VERIFIED:' : 'INCORRECT IDENTIFICATION:'}</strong> ${item.dossier}`;
+  }
+
+  if (isCorrect) {
+    gameState.p1Score += 100;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+    showBanner(`Correct! Specimen authenticated as ${item.species} (+100 PTS)`, true);
+    logDispatch(`Officer identified ${item.species} correctly.`, 'point');
+  } else {
+    gameState.streak = 0;
+    playSound('wrong');
+    showBanner(`Negative. Target is ${item.species}. Record updated.`, false);
+    logDispatch(`Incorrect guess (${chosen}). Specimen was ${item.species}.`, 'kill');
+  }
+
+  simulateOpponentTurn('bone', isCorrect);
+  updateHUD();
+  broadcastStateSync();
+}
+
+/* ==========================================================================
+   GAME 2: HOW DID THE CELEBRITY DIE? (MORTALITY TRIVIA)
+   ========================================================================== */
+const celebrityData = [
+  {
+    name: "Nikola Tesla",
+    dates: "1856 – 1943",
+    role: "Electrical Inventor & Physicist",
+    era: "MID 20TH CENTURY",
+    correct: "Coronary thrombosis (heart attack) alone in the Hotel New Yorker",
+    distractors: [
+      "Accidental electrocution in his Wardenclyffe laboratory",
+      "Pneumonia following public fall in Central Park",
+      "Arsenic poisoning orchestrated by rival utility syndicates"
+    ],
+    context: "Tesla died alone in Room 3327 on the 33rd floor of the Hotel New Yorker on 7 January 1943 at age 86. The medical examiner confirmed coronary thrombosis. His papers were later impounded by the Alien Property Custodian.",
+    dossier: "Nikola Tesla lived his final decade in modest circumstances, feeding pigeons and writing mathematical treatises. His autopsy revealed death due to natural coronary thrombosis."
+  },
+  {
+    name: "David Bowie",
+    dates: "1947 – 2016",
+    role: "Iconic Musician & Cultural Pioneer",
+    era: "21ST CENTURY",
+    correct: "Liver cancer in his Manhattan apartment, 2 days after releasing 'Blackstar'",
+    distractors: [
+      "Complications from an aortic aneurysm during tour rehearsals",
+      "Sudden heart failure in a private London clinic",
+      "Aggressive glioblastoma diagnosed during album mastering"
+    ],
+    context: "David Bowie kept his 18-month illness strictly confidential while recording his acclaimed farewell album 'Blackstar'. He passed away on 10 January 2016 in New York surrounded by family.",
+    dossier: "Bowie's passing was kept private until post-mortem announcement. In the week following his death, his 1999 video game 'Omikron: The Nomad Soul' was offered as a free memorial download."
+  },
+  {
+    name: "Jayne Mansfield",
+    dates: "1933 – 1967",
+    role: "Hollywood Actress & Broadway Star",
+    era: "1960S HOLLYWOOD",
+    correct: "Severe head trauma in a car crash underriding a tractor-trailer",
+    distractors: [
+      "Barbiturate overdose in her Beverly Hills home",
+      "Fatal plane crash during a regional theatre tour",
+      "Anaphylaxis from an untreated brown recluse spider bite"
+    ],
+    context: "In the early morning of 29 June 1967, Mansfield was travelling along US Route 90 when her Buick collided with the rear of a pesticide-fogging tractor-trailer in Louisiana, killing the three front-seat passengers instantly.",
+    dossier: "This high-profile tragedy directly prompted the US National Highway Traffic Safety Administration to mandate rear underride guards on commercial lorries, universally termed 'Mansfield bars'."
+  },
+  {
+    name: "Alan Turing",
+    dates: "1912 – 1954",
+    role: "Mathematician & Bletchley Park Cryptanalyst",
+    era: "POST-WAR BRITAIN",
+    correct: "Cyanide poisoning; half-eaten apple discovered beside his bed",
+    distractors: [
+      "Cardiovascular failure caused by experimental hormone treatments",
+      "Tuberculosis contracted during post-war university lecturing",
+      "Accidental fall from an unlit railway platform in Cheshire"
+    ],
+    context: "The pioneer of theoretical computer science and cracking the Enigma cipher was found dead at his Wilmslow home on 8 June 1954. An inquest ruled cyanide toxicity from an apple.",
+    dossier: "Turing's codebreaking at Bletchley Park saved estimated millions of European lives. In 2013, he was granted a posthumous Royal Pardon by Queen Elizabeth II."
+  },
+  {
+    name: "Harry Houdini",
+    dates: "1874 – 1926",
+    role: "Master Illusionist & Stunt Performer",
+    era: "1920S VAUDEVILLE",
+    correct: "Peritonitis resulting from a ruptured appendix after abdominal punches",
+    distractors: [
+      "Drowning inside a locked Chinese Water Torture Cell malfunction",
+      "Internal asphyxiation during an upside-down straitjacket escape",
+      "Septicaemia following an onstage puncture wound from handcuffs"
+    ],
+    context: "In Montreal, student J. Gordon Whitehead delivered unexpected heavy blows to Houdini's abdomen while testing his muscle control. Houdini's already inflamed appendix ruptured, causing fatal peritonitis on Halloween 1926.",
+    dossier: "Contrary to popular urban legend, Houdini did not drown in an escape tank. He died at Grace Hospital in Detroit after refusing immediate surgical intervention during his theatre tour."
+  },
+  {
+    name: "Lord Kitchener",
+    dates: "1850 – 1916",
+    role: "British Field Marshal & Secretary of State for War",
+    era: "FIRST WORLD WAR",
+    correct: "HMS Hampshire struck a German naval mine off the Orkney Islands",
+    distractors: [
+      "Sniper bullet during an inspection of the Gallipoli trenches",
+      "Torpedo attack while boarding an armed merchant cruiser in Dover",
+      "Sudden stroke at the War Office in Whitehall during cabinet session"
+    ],
+    context: "While en route to diplomatic negotiations in Imperial Russia on 5 June 1916, cruiser HMS Hampshire hit a mine laid by German submarine U-75 in a gale west of Orkney; Kitchener was among over 600 drowned.",
+    dossier: "Kitchener was the face of the iconic 'Your Country Needs You' recruitment campaign. His sudden loss shook British public morale during the opening weeks of the Somme offensive."
+  }
+];
+
+let currentDeathIdx = 0;
+
+function loadDeathQuestion() {
+  const item = celebrityData[currentDeathIdx % celebrityData.length];
+  const eraEl = document.getElementById('death-era-tag');
+  const nameEl = document.getElementById('death-person-name');
+  const roleEl = document.getElementById('death-person-role');
+  const contextEl = document.getElementById('death-context-story');
+  const grid = document.getElementById('death-options-grid');
+  const dossierEl = document.getElementById('dossier-content');
+
+  if (eraEl) eraEl.textContent = item.era;
+  if (nameEl) nameEl.textContent = item.name;
+  if (roleEl) roleEl.textContent = `${item.role} (${item.dates})`;
+  if (contextEl) contextEl.textContent = `Historical dossier for ${item.name}. What were the documented primary clinical or accidental circumstances of their death?`;
+  if (dossierEl) dossierEl.textContent = "Select a historical cause of death to reveal archival records.";
+
+  // Update sidebar metadata
+  const mDomain = document.getElementById('spec-meta-domain');
+  const mClass = document.getElementById('spec-meta-class');
+  const mMarker = document.getElementById('spec-meta-marker');
+  const mNote = document.getElementById('spec-meta-note');
+  if (mDomain) mDomain.textContent = "Mortality Forensics";
+  if (mClass) mClass.textContent = item.era;
+  if (mMarker) mMarker.textContent = item.name;
+  if (mNote) mNote.textContent = item.dates;
+
+  // Shuffle options
+  const options = [item.correct, ...item.distractors].sort(() => Math.random() - 0.5);
+
+  if (grid) {
+    grid.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <strong>${opt}</strong>
+        <span class="option-meta">CAUSE OF DEATH CANDIDATE</span>
+      `;
+      btn.onclick = () => submitDeathAnswer(opt, item);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function submitDeathAnswer(chosen, item) {
+  const grid = document.getElementById('death-options-grid');
+  if (!grid) return;
+  const buttons = grid.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === item.correct;
+  gameState.questionsAnswered++;
+
+  buttons.forEach(b => {
+    const txt = b.querySelector('strong') ? b.querySelector('strong').textContent : '';
+    if (txt === item.correct) {
+      b.classList.add('selected-correct');
+    } else if (txt === chosen) {
+      b.classList.add('selected-incorrect');
+    }
+  });
+
+  const dossierEl = document.getElementById('dossier-content');
+  if (dossierEl) {
+    dossierEl.innerHTML = `<strong>${isCorrect ? 'ARCHIVE VERIFIED:' : 'HISTORICAL CORRECTION:'}</strong> ${item.context} ${item.dossier}`;
+  }
+
+  if (isCorrect) {
+    gameState.p1Score += 100;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+    showBanner(`Accurate recollection! Historical record verified (+100 PTS)`, true);
+    logDispatch(`Officer identified death cause for ${item.name}.`, 'point');
+  } else {
+    gameState.streak = 0;
+    playSound('wrong');
+    showBanner(`Negative. Verified record: ${item.correct}`, false);
+    logDispatch(`Incorrect entry on ${item.name}.`, 'kill');
+  }
+
+  simulateOpponentTurn('death', isCorrect);
+  updateHUD();
+  broadcastStateSync();
+}
+
+/* ==========================================================================
+   GAME 3: BRITISH TRIVIA SHOWDOWN (UK MILITARY, PUB & CULTURAL LORE)
+   ========================================================================== */
+const britishTriviaData = [
+  {
+    topic: "BRITISH MILITARY REFORM",
+    question: "In what year after the Second World War was peacetime National Service abolished across the United Kingdom?",
+    correct: "1960",
+    options: ["1952", "1960", "1968", "1973"],
+    dossier: "National Service ended in 1960, with the last national serviceman formally discharged in 1963. Introduced by the National Service Act 1948, it required healthy men aged 17 to 21 to serve up to two years."
+  },
+  {
+    topic: "REGIMENTAL HERITAGE",
+    question: "Which regiment is the oldest continuously serving regular regiment in the British Army, founded in 1650?",
+    correct: "Coldstream Guards",
+    options: ["Grenadier Guards", "Coldstream Guards", "Scots Guards", "The Black Watch"],
+    dossier: "The Coldstream Guards trace origins to George Monck's regiment of 1650 in the English Civil War. Their regimental motto is 'Nulli Secundus' (Second to None)."
+  },
+  {
+    topic: "ORDNANCE BALLISTICS",
+    question: "On average, how long is the pyrotechnic delay fuse on standard British military fragmentation grenades (such as the L109)?",
+    correct: "Around 4 to 5 seconds",
+    options: ["Around 2 seconds", "Around 4 to 5 seconds", "Exactly 8 seconds", "12 seconds"],
+    dossier: "British infantry fragmentation grenades utilise a pyrotechnic delay fuze engineered to ignite on release of the safety lever, affording approximately 4–5 seconds before bursting."
+  },
+  {
+    topic: "UK ENGINEERING HISTORY",
+    question: "Where and in what year was Britain's very first commercial passenger escalator installed?",
+    correct: "Harrods department store in 1898 (earlier patent trials 1878)",
+    options: [
+      "Harrods department store in 1898 (earlier patent trials 1878)",
+      "London Underground Bank Station in 1900",
+      "Manchester Victoria Station in 1912",
+      "Selfridges Oxford Street in 1909"
+    ],
+    dossier: "Harrods installed Britain's first moving stairs on 16 November 1898. Nervous shoppers were famously greeted at the top landing by attendants dispensing smelling salts and brandy!"
+  },
+  {
+    topic: "UK HYDROLOGY GEOGRAPHY",
+    question: "What is recognised as Britain's shortest river, measuring barely a few hundred metres through Burnley in Lancashire?",
+    correct: "River Brun",
+    options: ["River Brun", "River Duddon", "River Stour", "River Cam"],
+    dossier: "The River Brun flows through Burnley in Lancashire and is historically known as Britain's shortest named river. It is an important tributary of the River Calder."
+  },
+  {
+    topic: "ROYAL MILITARY APPAREL",
+    question: "How tall are the iconic black Canadian bearskin caps worn by the Foot Guards at Buckingham Palace?",
+    correct: "Approximately 18 to 20 inches (46 to 50 cm)",
+    options: [
+      "12 inches (30 cm)",
+      "Approximately 18 to 20 inches (46 to 50 cm)",
+      "26 inches (66 cm)",
+      "14 inches (35 cm)"
+    ],
+    dossier: "Foot Guards bearskins stand approximately 18 to 20 inches high and weigh around 1.5 pounds, crafted from Canadian black bear pelt following the Battle of Waterloo (1815)."
+  },
+  {
+    topic: "MILITARY AEROSPACE",
+    question: "What was the codename of Britain's first satellite launch vehicle and medium-range ballistic missile tested in 1964?",
+    correct: "Blue Streak",
+    options: ["Black Knight", "Blue Streak", "Skylark", "Vanguard"],
+    dossier: "Blue Streak was developed by de Havilland as an independent British nuclear deterrent missile, later adapted as the first stage of the Europa satellite launch rocket at Woomera."
+  },
+  {
+    topic: "BRITISH CULTURAL SLANG",
+    question: "In Cockney rhyming slang, if an East Londoner refers to 'the dog and bone', what do they mean?",
+    correct: "Phone",
+    options: ["Phone", "Home", "Alone", "Stone"],
+    dossier: "Cockney rhyming slang replaces words with rhyming couplets; 'dog and bone' rhyming with phone, alongside 'apples and pears' for stairs and 'trouble and strife' for wife."
+  }
+];
+
+let currentTriviaIdx = 0;
+
+function loadTriviaQuestion() {
+  const item = britishTriviaData[currentTriviaIdx % britishTriviaData.length];
+  const topicEl = document.getElementById('trivia-topic-tag');
+  const promptEl = document.getElementById('trivia-question-prompt');
+  const grid = document.getElementById('trivia-options-grid');
+  const dossierEl = document.getElementById('dossier-content');
+
+  if (topicEl) topicEl.textContent = item.topic;
+  if (promptEl) promptEl.textContent = item.question;
+  if (dossierEl) dossierEl.textContent = "Select an answer to reveal Whitehall historical commentary.";
+
+  // Update sidebar metadata
+  const mDomain = document.getElementById('spec-meta-domain');
+  const mClass = document.getElementById('spec-meta-class');
+  const mMarker = document.getElementById('spec-meta-marker');
+  const mNote = document.getElementById('spec-meta-note');
+  if (mDomain) mDomain.textContent = "Crown Records";
+  if (mClass) mClass.textContent = item.topic;
+  if (mMarker) mMarker.textContent = "Historical Inquiry";
+  if (mNote) mNote.textContent = "British Lore";
+
+  if (grid) {
+    grid.innerHTML = '';
+    item.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <strong>${opt}</strong>
+        <span class="option-meta">INTELLIGENCE ANSWER OPTION</span>
+      `;
+      btn.onclick = () => submitTriviaAnswer(opt, item);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function submitTriviaAnswer(chosen, item) {
+  const grid = document.getElementById('trivia-options-grid');
+  if (!grid) return;
+  const buttons = grid.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === item.correct;
+  gameState.questionsAnswered++;
+
+  buttons.forEach(b => {
+    const txt = b.querySelector('strong') ? b.querySelector('strong').textContent : '';
+    if (txt === item.correct) {
+      b.classList.add('selected-correct');
+    } else if (txt === chosen) {
+      b.classList.add('selected-incorrect');
+    }
+  });
+
+  const dossierEl = document.getElementById('dossier-content');
+  if (dossierEl) {
+    dossierEl.innerHTML = `<strong>${isCorrect ? 'WHITEHALL ARCHIVE VERIFIED:' : 'HISTORICAL INACCURACY:'}</strong> ${item.dossier}`;
+  }
+
+  if (isCorrect) {
+    gameState.p1Score += 100;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+    showBanner(`Correct! Crown intelligence verified (+100 PTS)`, true);
+    logDispatch(`Trivia query answered correctly.`, 'point');
+  } else {
+    gameState.streak = 0;
+    playSound('wrong');
+    showBanner(`Negative. Correct response: ${item.correct}`, false);
+    logDispatch(`Trivia query missed.`, 'kill');
+  }
+
+  simulateOpponentTurn('trivia', isCorrect);
+  updateHUD();
+  broadcastStateSync();
+}
+
+/* ==========================================================================
+   GAME 4: GUESS THE WEAPON (ARMORY RECONNAISSANCE)
+   ========================================================================== */
+const weaponData = [
+  {
+    name: "L85A3 (SA80) Assault Rifle",
+    category: "SMALL ARMS // INFANTRY",
+    origin: "UNITED KINGDOM",
+    correct: "L85A3 Bullpup Assault Rifle",
+    options: [
+      "L85A3 Bullpup Assault Rifle",
+      "Heckler & Koch G36C",
+      "FN FAL (L1A1 SLR)",
+      "Steyr AUG A3"
+    ],
+    dossier: "The L85A3 is the modernised iteration of the British Armed Forces' standard service weapon. Featuring a bullpup layout with Cerakote finish, monolithic rail, and 5.56×45mm NATO calibre.",
+    svgRender: "sa80"
+  },
+  {
+    name: "Challenger 2 Main Battle Tank",
+    category: "ARMOUR // COMBAT VEHICLE",
+    origin: "UNITED KINGDOM",
+    correct: "Challenger 2 Main Battle Tank",
+    options: [
+      "Challenger 2 Main Battle Tank",
+      "Leopard 2A7",
+      "M1A2 Abrams",
+      "ALTAY Battle Tank"
+    ],
+    dossier: "Challenger 2 serves as the British Army's heavy armour anchor. Equipped with a 120mm L30A1 rifled tank gun, Dorchester composite armour, and Perkins V12 diesel engine.",
+    svgRender: "tank"
+  },
+  {
+    name: "Eurofighter Typhoon FGR4",
+    category: "MILITARY AIRCRAFT // MULTIROLE",
+    origin: "UK / GERMANY / ITALY / SPAIN",
+    correct: "Eurofighter Typhoon",
+    options: [
+      "Eurofighter Typhoon",
+      "Dassault Rafale",
+      "BAE Systems Tempest",
+      "F-35B Lightning II"
+    ],
+    dossier: "The Typhoon is a twin-engine, canard-delta wing multirole fighter aircraft. Capable of Mach 2.0+ supercruise and equipped with the CAPTOR-E AESA radar and Meteor missiles.",
+    svgRender: "typhoon"
+  },
+  {
+    name: "Barrett M82 Anti-Materiel Rifle",
+    category: "HEAVY SNIPER // .50 CAL",
+    origin: "UNITED STATES",
+    correct: "Barrett M82 'Light Fifty'",
+    options: [
+      "Barrett M82 'Light Fifty'",
+      "Accuracy International L115A3",
+      "CheyTac M200 Intervention",
+      "DSR-50 Sniper"
+    ],
+    dossier: "The Barrett M82 is a recoil-operated, semi-automatic anti-materiel rifle chambered in .50 BMG (12.7×99mm). Features a distinct arrow-shaped muzzle brake to dissipate heavy recoil.",
+    svgRender: "sniper"
+  },
+  {
+    name: "Bayraktar TB2 Drone",
+    category: "UNMANNED AERIAL COMBAT VEHICLE",
+    origin: "TURKEY",
+    correct: "Bayraktar TB2 UCAV",
+    options: [
+      "Bayraktar TB2 UCAV",
+      "MQ-9 Reaper",
+      "Hermes 900",
+      "Watchkeeper WK450"
+    ],
+    dossier: "The Bayraktar TB2 is a Medium Altitude Long Endurance (MALE) tactical drone with an inverted V-tail boom design, capable of laser-guided smart munition delivery.",
+    svgRender: "drone"
+  }
+];
+
+let currentWeaponIdx = 0;
+
+function renderWeaponSVG(type) {
+  const svg = document.getElementById('weapon-svg-canvas');
+  if (!svg) return;
+
+  if (type === 'sa80') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <path d="M60 120 L160 120 L180 85 L350 85 L370 110 L440 110 L440 125 L370 125 L340 150 L270 150 L250 120 L160 120 L140 155 L100 155 Z" fill="rgba(15,98,254,0.1)" stroke="var(--primary)"/>
+        <rect x="220" y="65" width="80" height="20" rx="3" fill="var(--surface-container-high)" stroke="var(--outline)"/> <!-- SUSAT Sight -->
+        <rect x="300" y="125" width="25" height="45" fill="var(--outline-variant)" stroke="var(--outline)"/> <!-- Bullpup Mag -->
+        <circle cx="180" cy="130" r="12" stroke="var(--outline)"/> <!-- Trigger guard -->
+        <text x="250" y="190" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">BULLPUP CONFIGURATION (MAGAZINE AFT OF TRIGGER)</text>
+      </g>
+    `;
+  } else if (type === 'tank') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <rect x="80" y="120" width="340" height="40" rx="20" fill="var(--surface-container-high)" stroke="var(--outline)"/>
+        <!-- Tracks and Road wheels -->
+        <circle cx="110" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="150" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="190" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="230" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="270" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="310" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="350" cy="140" r="14" fill="var(--outline-variant)"/>
+        <circle cx="390" cy="140" r="14" fill="var(--outline-variant)"/>
+        <!-- Hull & Turret -->
+        <path d="M120 120 L380 120 L350 90 L160 90 Z" fill="rgba(15,98,254,0.08)" stroke="var(--primary)"/>
+        <path d="M180 90 L300 90 L280 60 L200 60 Z" fill="rgba(15,98,254,0.15)" stroke="var(--primary)"/>
+        <!-- 120mm Gun -->
+        <rect x="290" y="70" width="180" height="8" fill="var(--primary)"/>
+        <text x="250" y="190" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">CHALLENGER 2 COMBAT PROFILE (120MM RIFLED ORDNANCE)</text>
+      </g>
+    `;
+  } else if (type === 'typhoon') {
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <!-- Canard Delta Silhouette -->
+        <path d="M250 40 L260 70 L340 140 L340 160 L260 145 L250 170 L240 145 L160 160 L160 140 L240 70 Z" fill="rgba(15,98,254,0.1)" stroke="var(--primary)"/>
+        <path d="M230 75 L200 80 L230 90 Z" fill="var(--primary)"/> <!-- Foreplane canard left -->
+        <path d="M270 75 L300 80 L270 90 Z" fill="var(--primary)"/> <!-- Foreplane canard right -->
+        <text x="250" y="190" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">CANARD-DELTA FOREPLANE CONFIGURATION</text>
+      </g>
+    `;
+  } else {
+    // Barrett or Drone general
+    svg.innerHTML = `
+      <g stroke="currentColor" fill="none" stroke-width="2">
+        <line x1="50" y1="100" x2="450" y2="100" stroke="var(--primary)" stroke-width="6"/>
+        <rect x="180" y="85" width="120" height="30" fill="var(--surface-container-high)" stroke="var(--outline)"/>
+        <path d="M200 115 L190 145 L220 145" stroke="var(--outline)"/>
+        <text x="250" y="185" text-anchor="middle" font-family="var(--font-label)" font-size="11" fill="currentColor">TACTICAL HARDWARE RECONNAISSANCE</text>
+      </g>
+    `;
+  }
+}
+
+function loadWeaponQuestion() {
+  const item = weaponData[currentWeaponIdx % weaponData.length];
+  const classEl = document.getElementById('weapon-class-tag');
+  const originEl = document.getElementById('weapon-origin-tag');
+  const dossierInfo = document.getElementById('weapon-intel-dossier');
+  const grid = document.getElementById('weapon-options-grid');
+  const dossierEl = document.getElementById('dossier-content');
+
+  if (classEl) classEl.textContent = `CATEGORY: ${item.category}`;
+  if (originEl) originEl.textContent = `ORIGIN: ${item.origin}`;
+  if (dossierInfo) dossierInfo.textContent = `Analyse silhouette profile and component arrangement. Identify system:`;
+  if (dossierEl) dossierEl.textContent = "Select candidate system to review armory specs.";
+
+  renderWeaponSVG(item.svgRender);
+
+  // Update sidebar metadata
+  const mDomain = document.getElementById('spec-meta-domain');
+  const mClass = document.getElementById('spec-meta-class');
+  const mMarker = document.getElementById('spec-meta-marker');
+  const mNote = document.getElementById('spec-meta-note');
+  if (mDomain) mDomain.textContent = "Armory Recognition";
+  if (mClass) mClass.textContent = item.category;
+  if (mMarker) mMarker.textContent = item.origin;
+  if (mNote) mNote.textContent = "Hardware Profile";
+
+  if (grid) {
+    grid.innerHTML = '';
+    item.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <strong>${opt}</strong>
+        <span class="option-meta">WEAPON IDENTIFICATION CODE</span>
+      `;
+      btn.onclick = () => submitWeaponAnswer(opt, item);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function submitWeaponAnswer(chosen, item) {
+  const grid = document.getElementById('weapon-options-grid');
+  if (!grid) return;
+  const buttons = grid.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === item.correct;
+  gameState.questionsAnswered++;
+
+  buttons.forEach(b => {
+    const txt = b.querySelector('strong') ? b.querySelector('strong').textContent : '';
+    if (txt === item.correct) {
+      b.classList.add('selected-correct');
+    } else if (txt === chosen) {
+      b.classList.add('selected-incorrect');
+    }
+  });
+
+  const dossierEl = document.getElementById('dossier-content');
+  if (dossierEl) {
+    dossierEl.innerHTML = `<strong>${isCorrect ? 'TARGET RECOGNISED:' : 'TARGET MISIDENTIFIED:'}</strong> ${item.dossier}`;
+  }
+
+  if (isCorrect) {
+    gameState.p1Score += 100;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+    showBanner(`Target confirmed: ${item.correct} (+100 PTS)`, true);
+    logDispatch(`Weapon recognized: ${item.name}`, 'point');
+  } else {
+    gameState.streak = 0;
+    playSound('wrong');
+    showBanner(`Negative. System is ${item.correct}.`, false);
+    logDispatch(`Misidentification on ${item.name}`, 'kill');
+  }
+
+  simulateOpponentTurn('weapon', isCorrect);
+  updateHUD();
+  broadcastStateSync();
+}
+
+/* ==========================================================================
+   GAME 5: GUESS THE CAMO (CAMOUFLAGE PATTERN IDENTIFICATION)
+   ========================================================================== */
+const camoPatterns = [
+  {
+    name: "Multi-Terrain Pattern (MTP)",
+    family: "HYBRID DISRUPTIVE",
+    terrain: "MULTI-THEATRE (DESERT / TEMPERATE)",
+    correct: "Multi-Terrain Pattern (MTP)",
+    options: [
+      "Multi-Terrain Pattern (MTP)",
+      "Disruptive Pattern Material (DPM)",
+      "CADPAT (Canadian Disruptive)",
+      "Flecktarn (German 5-Colour)"
+    ],
+    clue: "British Armed Forces standard issue since Operation Herrick (Afghanistan). Combines MultiCam's blended colour gradient with British DPM's undulating brush shapes.",
+    dossier: "MTP was introduced in 2010 to resolve camouflage performance deficits between arid Helmand scrub and green zone river valleys, eliminating the need for dual uniform issues.",
+    type: "mtp"
+  },
+  {
+    name: "Disruptive Pattern Material (DPM)",
+    family: "BRITISH CLASSIC BRUSH",
+    terrain: "WOODLAND & TEMPERATE",
+    correct: "Disruptive Pattern Material (DPM)",
+    options: [
+      "Disruptive Pattern Material (DPM)",
+      "Multi-Terrain Pattern (MTP)",
+      "US Woodland (M81)",
+      "Rhodesian Brushstroke"
+    ],
+    clue: "First fielded by the British Army in the late 1960s, featuring prominent undulating shapes of dark green, brown, and black hand-swiped over a khaki base.",
+    dossier: "DPM served as the frontline British uniform throughout the Falklands Conflict and Cold War BAOR deployments before being superseded by MTP in 2010.",
+    type: "dpm"
+  },
+  {
+    name: "CADPAT (Canadian Disruptive Pattern)",
+    family: "DIGITAL / PIXELATED",
+    terrain: "TEMPERATE WOODLAND",
+    correct: "CADPAT",
+    options: [
+      "CADPAT",
+      "US MARPAT",
+      "Universal Camouflage Pattern (UCP)",
+      "Splinter (Splittermuster)"
+    ],
+    clue: "Fielded in 1996 as the world's first operational computer-generated pixelated micropattern. Uses four colour bands: light green, dark green, brown, and black.",
+    dossier: "CADPAT pioneered digital camouflage by confusing the eye's cognitive edge-detection mechanisms, inspiring subsequent digital developments like MARPAT and Type 07.",
+    type: "cadpat"
+  },
+  {
+    name: "Flecktarn (Flecktarnmuster)",
+    family: "MOTTLED STIPPLING",
+    terrain: "CENTRAL EUROPEAN FORESTS",
+    correct: "Flecktarn (German Bundeswehr)",
+    options: [
+      "Flecktarn (German Bundeswehr)",
+      "Chocolate Chip (Desert BDU)",
+      "Strichtarn (Raindrop)",
+      "MultiCam"
+    ],
+    clue: "Adopted by the German Bundeswehr in 1990. Features small stippled clusters of 5 colours (green, brown, black, and two shades of tan) scattering woodland light and shadow.",
+    dossier: "Flecktarn's stippled spot arrangement softens harsh silhouette transitions in mixed deciduous forests, making it one of Europe's most widely respected designs.",
+    type: "flecktarn"
+  },
+  {
+    name: "Desert BDU (Six-Color 'Chocolate Chip')",
+    family: "ARID / PEBBLE CLUSTERS",
+    terrain: "ROCKY DESERT",
+    correct: "Six-Colour Desert ('Chocolate Chip')",
+    options: [
+      "Six-Colour Desert ('Chocolate Chip')",
+      "Three-Colour Desert (DCU)",
+      "British Desert DPM",
+      "Tigerstripe"
+    ],
+    clue: "US military desert uniform prominent during the Gulf War (Operation Desert Storm). Known for distinctive black-and-white rounded pebble spots across tan and beige.",
+    dossier: "Nicknamed 'Chocolate Chip' for its small rock-like accents. While visually striking, high-contrast black spots proved counterproductive in open sand dunes.",
+    type: "choc_chip"
+  },
+  {
+    name: "Strichtarn (Raindrop / Line Camo)",
+    family: "VERTICAL STRIATION",
+    terrain: "WARSAW PACT URBAN / MIXED",
+    correct: "Strichtarn (Warsaw Pact Raindrop)",
+    options: [
+      "Strichtarn (Warsaw Pact Raindrop)",
+      "Splinter (Splittermuster)",
+      "Rhodesian Brushstroke",
+      "CADPAT"
+    ],
+    clue: "Prominently worn by East German NVA and Warsaw Pact forces. Features thousands of vertical brown streaks mimicking rain over a sage-green background.",
+    dossier: "Strichtarn creates a slight vertical motion blur to the human eye, particularly when a soldier is moving through dense brush or urban concrete ruins.",
+    type: "raindrop"
+  }
+];
+
+let currentCamoIdx = 0;
+
+function drawCamoPattern(type) {
+  const canvas = document.getElementById('camo-render-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  if (type === 'cadpat') {
+    // Pixelated blocks
+    const colors = ['#2d4a22', '#1b2e15', '#4f3824', '#0d1109'];
+    ctx.fillStyle = colors[0];
+    ctx.fillRect(0, 0, w, h);
+    const blockSize = 10;
+    for (let x = 0; x < w; x += blockSize) {
+      for (let y = 0; y < h; y += blockSize) {
+        const r = Math.random();
+        if (r > 0.4) {
+          ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+          ctx.fillRect(x, y, blockSize, blockSize);
+        }
+      }
+    }
+  } else if (type === 'flecktarn') {
+    // Mottled spots
+    ctx.fillStyle = '#485834'; // Base olive
+    ctx.fillRect(0, 0, w, h);
+    const spotColors = ['#1a2012', '#7a5a3a', '#2f3b20', '#bca371'];
+    for (let i = 0; i < 400; i++) {
+      ctx.fillStyle = spotColors[Math.floor(Math.random() * spotColors.length)];
+      ctx.beginPath();
+      const cx = Math.random() * w;
+      const cy = Math.random() * h;
+      const rad = 4 + Math.random() * 14;
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (type === 'choc_chip') {
+    // Tan base with brown patches and chocolate chip pebbles
+    ctx.fillStyle = '#d5b88a';
+    ctx.fillRect(0, 0, w, h);
+    // Brown patches
+    ctx.fillStyle = '#8c6843';
+    for (let i = 0; i < 15; i++) {
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * w, Math.random() * h, 40 + Math.random() * 50, 25 + Math.random() * 30, Math.random(), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Black & white pebble clusters
+    for (let i = 0; i < 70; i++) {
+      const px = Math.random() * w;
+      const py = Math.random() * h;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(px, py, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#111111';
+      ctx.beginPath();
+      ctx.arc(px + 2, py + 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (type === 'raindrop') {
+    // Warsaw pact vertical dashes
+    ctx.fillStyle = '#556052';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#382f25';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 600; i++) {
+      const rx = Math.random() * w;
+      const ry = Math.random() * h;
+      ctx.beginPath();
+      ctx.moveTo(rx, ry);
+      ctx.lineTo(rx, ry + 12 + Math.random() * 8);
+      ctx.stroke();
+    }
+  } else {
+    // MTP / DPM style undulating brush strokes
+    ctx.fillStyle = '#8f9468';
+    ctx.fillRect(0, 0, w, h);
+    const brushColors = ['#414828', '#252016', '#705335', '#b3ab80'];
+    brushColors.forEach(c => {
+      ctx.fillStyle = c;
+      for (let i = 0; i < 12; i++) {
+        ctx.beginPath();
+        const startX = Math.random() * w;
+        const startY = Math.random() * h;
+        ctx.moveTo(startX, startY);
+        ctx.bezierCurveTo(startX + 60, startY - 40, startX + 120, startY + 50, startX + 180, startY + 10);
+        ctx.bezierCurveTo(startX + 140, startY + 70, startX + 40, startY + 60, startX, startY);
+        ctx.fill();
+      }
+    });
+  }
+}
+
+function loadCamoQuestion() {
+  const item = camoPatterns[currentCamoIdx % camoPatterns.length];
+  const famEl = document.getElementById('camo-family-tag');
+  const terEl = document.getElementById('camo-climate-tag');
+  const clueEl = document.getElementById('camo-historical-clue');
+  const grid = document.getElementById('camo-options-grid');
+  const dossierEl = document.getElementById('dossier-content');
+
+  if (famEl) famEl.textContent = `FAMILY: ${item.family}`;
+  if (terEl) terEl.textContent = `TERRAIN: ${item.terrain}`;
+  if (clueEl) clueEl.textContent = item.clue;
+  if (dossierEl) dossierEl.textContent = "Examine visual texture swatch and select corresponding military pattern:";
+
+  drawCamoPattern(item.type);
+
+  // Update sidebar metadata
+  const mDomain = document.getElementById('spec-meta-domain');
+  const mClass = document.getElementById('spec-meta-class');
+  const mMarker = document.getElementById('spec-meta-marker');
+  const mNote = document.getElementById('spec-meta-note');
+  if (mDomain) mDomain.textContent = "Camouflage Science";
+  if (mClass) mClass.textContent = item.family;
+  if (mMarker) mMarker.textContent = item.terrain;
+  if (mNote) mNote.textContent = "Pattern Geometry";
+
+  if (grid) {
+    grid.innerHTML = '';
+    item.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <strong>${opt}</strong>
+        <span class="option-meta">CAMOUFLAGE DESIGNATION</span>
+      `;
+      btn.onclick = () => submitCamoAnswer(opt, item);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function submitCamoAnswer(chosen, item) {
+  const grid = document.getElementById('camo-options-grid');
+  if (!grid) return;
+  const buttons = grid.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === item.correct;
+  gameState.questionsAnswered++;
+
+  buttons.forEach(b => {
+    const txt = b.querySelector('strong') ? b.querySelector('strong').textContent : '';
+    if (txt === item.correct) {
+      b.classList.add('selected-correct');
+    } else if (txt === chosen) {
+      b.classList.add('selected-incorrect');
+    }
+  });
+
+  const dossierEl = document.getElementById('dossier-content');
+  if (dossierEl) {
+    dossierEl.innerHTML = `<strong>${isCorrect ? 'CAMO AUTHENTICATED:' : 'MISCLASSIFIED PATTERN:'}</strong> ${item.dossier}`;
+  }
+
+  if (isCorrect) {
+    gameState.p1Score += 100;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+    showBanner(`Camouflage identified! ${item.correct} (+100 PTS)`, true);
+    logDispatch(`Camo recognized: ${item.name}`, 'point');
+  } else {
+    gameState.streak = 0;
+    playSound('wrong');
+    showBanner(`Negative. Pattern was ${item.correct}.`, false);
+    logDispatch(`Camo missed: ${item.name}`, 'kill');
+  }
+
+  simulateOpponentTurn('camo', isCorrect);
+  updateHUD();
+  broadcastStateSync();
+}
+
+/* ==========================================================================
+   GAME 6: CONNECT 4 DUEL (TACTICAL OFFICE GRID)
+   ========================================================================== */
+const C4_ROWS = 6;
+const C4_COLS = 7;
+let c4BoardState = Array.from({ length: C4_ROWS }, () => Array(C4_COLS).fill(0));
+let c4CurrentTurn = 1; // 1 = P1 (Red), 2 = P2/Bot (Yellow)
+let c4GameOver = false;
+
+function initConnect4() {
+  const board = document.getElementById('connect4-board');
+  if (!board) return;
+  board.innerHTML = '';
+  c4BoardState = Array.from({ length: C4_ROWS }, () => Array(C4_COLS).fill(0));
+  c4CurrentTurn = 1;
+  c4GameOver = false;
+
+  for (let r = 0; r < C4_ROWS; r++) {
+    for (let c = 0; c < C4_COLS; c++) {
+      const slot = document.createElement('div');
+      slot.className = 'c4-slot';
+      slot.id = `c4-cell-${r}-${c}`;
+      slot.setAttribute('data-col', c);
+      slot.setAttribute('data-row', r);
+      slot.onclick = () => handleConnect4ColumnClick(c);
+      board.appendChild(slot);
+    }
+  }
+
+  updateC4TurnBanner();
+}
+
+function updateC4TurnBanner() {
+  const indicator = document.getElementById('c4-turn-indicator');
+  const announce = document.getElementById('c4-status-announcement');
+  if (!indicator) return;
+
+  if (c4GameOver) {
+    indicator.textContent = 'MATCH CONCLUDED';
+    indicator.className = 'badge badge-green';
+    return;
+  }
+
+  if (c4CurrentTurn === 1) {
+    indicator.textContent = 'YOUR TURN (RED)';
+    indicator.className = 'badge badge-blue';
+    if (announce) announce.textContent = "Select column to drop Red chip.";
+  } else {
+    indicator.textContent = gameState.isMultiplayer ? "OPPONENT'S TURN (YELLOW)" : "COLLEAGUE BOT THINKING...";
+    indicator.className = 'badge badge-amber';
+    if (announce) announce.textContent = "Waiting for Yellow counterplay...";
+  }
+}
+
+function handleConnect4ColumnClick(col) {
+  if (c4GameOver) return;
+  if (c4CurrentTurn !== 1 && !gameState.isMultiplayer) return;
+
+  dropConnect4Chip(col, c4CurrentTurn);
+}
+
+function dropConnect4Chip(col, player) {
+  // Find lowest empty row
+  let targetRow = -1;
+  for (let r = C4_ROWS - 1; r >= 0; r--) {
+    if (c4BoardState[r][col] === 0) {
+      targetRow = r;
+      break;
+    }
+  }
+
+  if (targetRow === -1) return; // Column full
+
+  c4BoardState[targetRow][col] = player;
+  playSound('clink');
+
+  const cell = document.getElementById(`c4-cell-${targetRow}-${col}`);
+  if (cell) {
+    cell.classList.add(player === 1 ? 'p1-chip' : 'p2-chip');
+  }
+
+  // Check win
+  const win = checkConnect4Win(player);
+  if (win) {
+    c4GameOver = true;
+    win.forEach(([wr, wc]) => {
+      const wCell = document.getElementById(`c4-cell-${wr}-${wc}`);
+      if (wCell) wCell.classList.add('win-chip');
+    });
+
+    if (player === 1) {
+      gameState.p1Score += 300;
+      playSound('correct');
+      showBanner("VICTORY! Four in a row secured by Player 1 (+300 PTS)!", true);
+      logDispatch("Player 1 won Connect 4 duel!", 'point');
+    } else {
+      gameState.p2Score += 300;
+      playSound('wrong');
+      showBanner("DEFEAT! Connect 4 claimed by Opponent / Bot.", false);
+      logDispatch("Opponent won Connect 4 duel.", 'kill');
+    }
+    updateHUD();
+    updateC4TurnBanner();
+    return;
+  }
+
+  // Check draw
+  if (c4BoardState.every(row => row.every(val => val !== 0))) {
+    c4GameOver = true;
+    showBanner("STALEMATE! Grid completely filled.", false);
+    updateC4TurnBanner();
+    return;
+  }
+
+  // Switch turn
+  c4CurrentTurn = c4CurrentTurn === 1 ? 2 : 1;
+  updateC4TurnBanner();
+
+  if (c4CurrentTurn === 2 && !gameState.isMultiplayer) {
+    setTimeout(executeConnect4BotMove, 450);
+  }
+}
+
+function checkConnect4Win(player) {
+  // Check horizontal
+  for (let r = 0; r < C4_ROWS; r++) {
+    for (let c = 0; c < C4_COLS - 3; c++) {
+      if (
+        c4BoardState[r][c] === player &&
+        c4BoardState[r][c + 1] === player &&
+        c4BoardState[r][c + 2] === player &&
+        c4BoardState[r][c + 3] === player
+      ) {
+        return [[r, c], [r, c + 1], [r, c + 2], [r, c + 3]];
+      }
+    }
+  }
+
+  // Check vertical
+  for (let r = 0; r < C4_ROWS - 3; r++) {
+    for (let c = 0; c < C4_COLS; c++) {
+      if (
+        c4BoardState[r][c] === player &&
+        c4BoardState[r + 1][c] === player &&
+        c4BoardState[r + 2][c] === player &&
+        c4BoardState[r + 3][c] === player
+      ) {
+        return [[r, c], [r + 1, c], [r + 2, c], [r + 3, c]];
+      }
+    }
+  }
+
+  // Check diagonal down-right
+  for (let r = 0; r < C4_ROWS - 3; r++) {
+    for (let c = 0; c < C4_COLS - 3; c++) {
+      if (
+        c4BoardState[r][c] === player &&
+        c4BoardState[r + 1][c + 1] === player &&
+        c4BoardState[r + 2][c + 2] === player &&
+        c4BoardState[r + 3][c + 3] === player
+      ) {
+        return [[r, c], [r + 1, c + 1], [r + 2, c + 2], [r + 3, c + 3]];
+      }
+    }
+  }
+
+  // Check diagonal down-left
+  for (let r = 0; r < C4_ROWS - 3; r++) {
+    for (let c = 3; c < C4_COLS; c++) {
+      if (
+        c4BoardState[r][c] === player &&
+        c4BoardState[r + 1][c - 1] === player &&
+        c4BoardState[r + 2][c - 2] === player &&
+        c4BoardState[r + 3][c - 3] === player
+      ) {
+        return [[r, c], [r + 1, c - 1], [r + 2, c - 2], [r + 3, c - 3]];
+      }
+    }
+  }
+
+  return null;
+}
+
+function executeConnect4BotMove() {
+  if (c4GameOver) return;
+
+  // 1. Can Bot win right now?
+  for (let c = 0; c < C4_COLS; c++) {
+    if (canPlayColumn(c)) {
+      const r = getDropRow(c);
+      c4BoardState[r][c] = 2;
+      if (checkConnect4Win(2)) {
+        c4BoardState[r][c] = 0;
+        dropConnect4Chip(c, 2);
+        return;
+      }
+      c4BoardState[r][c] = 0;
+    }
+  }
+
+  // 2. Can Player 1 win on next turn? If so, block!
+  for (let c = 0; c < C4_COLS; c++) {
+    if (canPlayColumn(c)) {
+      const r = getDropRow(c);
+      c4BoardState[r][c] = 1;
+      if (checkConnect4Win(1)) {
+        c4BoardState[r][c] = 0;
+        dropConnect4Chip(c, 2);
+        return;
+      }
+      c4BoardState[r][c] = 0;
+    }
+  }
+
+  // 3. Prefer centre columns (3, then 2,4 then 1,5)
+  const prefCols = [3, 2, 4, 1, 5, 0, 6];
+  for (let col of prefCols) {
+    if (canPlayColumn(col) && Math.random() > 0.15) {
+      dropConnect4Chip(col, 2);
+      return;
+    }
+  }
+
+  // Fallback random
+  const valid = [];
+  for (let c = 0; c < C4_COLS; c++) {
+    if (canPlayColumn(c)) valid.push(c);
+  }
+  if (valid.length > 0) {
+    dropConnect4Chip(valid[Math.floor(Math.random() * valid.length)], 2);
+  }
+}
+
+function canPlayColumn(c) {
+  return c4BoardState[0][c] === 0;
+}
+
+function getDropRow(c) {
+  for (let r = C4_ROWS - 1; r >= 0; r--) {
+    if (c4BoardState[r][c] === 0) return r;
+  }
+  return -1;
+}
+
+function resetConnect4Board() {
+  initConnect4();
+  showBanner("Connect 4 board cleared. Round reset.", true);
+  playSound('click');
+}
+
+/* ==========================================================================
+   GAME 7: QUICK DRAW DUEL (OFFICE REFLEX STANDOFF)
+   ========================================================================== */
+let duelState = 'idle'; // idle, waiting, primed, finished
+let duelTimeout = null;
+let duelSignalTime = 0;
+let duelPlayerFired = false;
+
+function startDuelRound() {
+  if (duelTimeout) clearTimeout(duelTimeout);
+  duelState = 'waiting';
+  duelPlayerFired = false;
+
+  const arena = document.getElementById('duel-arena-box');
+  const sigText = document.getElementById('duel-signal-text');
+  const subCue = document.getElementById('duel-sub-cue');
+  const stageSub = document.getElementById('duel-stage-sub');
+  const p1Rx = document.getElementById('duel-p1-reaction');
+  const p2Rx = document.getElementById('duel-p2-reaction');
+
+  if (p1Rx) p1Rx.textContent = '--- MS';
+  if (p2Rx) p2Rx.textContent = '--- MS';
+  if (stageSub) stageSub.textContent = 'STANDOFF IN PROGRESS';
+
+  if (arena) arena.style.backgroundColor = 'var(--surface-container-low)';
+  if (sigText) {
+    sigText.className = 'duel-signal ready';
+    sigText.textContent = 'STEADY...';
+  }
+  if (subCue) subCue.textContent = 'Keep your finger on the trigger. Do NOT fire prematurely!';
+
+  playSound('click');
+
+  // Random delay between 1.8s and 4.2s
+  const delay = Math.floor(1800 + Math.random() * 2400);
+  duelTimeout = setTimeout(() => {
+    duelState = 'primed';
+    duelSignalTime = performance.now();
+    playSound('draw_signal');
+
+    if (sigText) {
+      sigText.className = 'duel-signal fire';
+      sigText.textContent = 'FIRE!';
+    }
+    if (subCue) subCue.textContent = 'PULL TRIGGER INSTANTLY!';
+    if (arena) arena.style.backgroundColor = 'rgba(218, 30, 40, 0.15)';
+
+    // Bot reflex timer
+    let botDelay = 280;
+    if (gameState.botDifficulty === 'easy') botDelay = 380 + Math.random() * 120;
+    else if (gameState.botDifficulty === 'medium') botDelay = 260 + Math.random() * 90;
+    else if (gameState.botDifficulty === 'hard') botDelay = 210 + Math.random() * 50;
+    else if (gameState.botDifficulty === 'expert') botDelay = 180 + Math.random() * 30;
+
+    setTimeout(() => {
+      if (duelState === 'primed' && !duelPlayerFired) {
+        handleDuelBotWon(Math.round(botDelay));
+      }
+    }, botDelay);
+
+  }, delay);
+}
+
+function handleDuelPlayerFire() {
+  if (duelState === 'waiting') {
+    // False start penalty!
+    clearTimeout(duelTimeout);
+    duelState = 'finished';
+    playSound('wrong');
+    const sigText = document.getElementById('duel-signal-text');
+    const subCue = document.getElementById('duel-sub-cue');
+    if (sigText) {
+      sigText.className = 'duel-signal ready';
+      sigText.textContent = 'MISFIRE!';
+    }
+    if (subCue) subCue.textContent = 'You fired before the draw signal! Disqualified for this round.';
+    showBanner("PENALTY: Premature discharge! Opponent claims point.", false);
+    gameState.p2Score += 100;
+    logDispatch("Player committed false draw misfire.", 'kill');
+    updateHUD();
+    return;
+  }
+
+  if (duelState === 'primed' && !duelPlayerFired) {
+    duelPlayerFired = true;
+    duelState = 'finished';
+    const reaction = Math.round(performance.now() - duelSignalTime);
+    playSound('gunshot');
+
+    const p1Rx = document.getElementById('duel-p1-reaction');
+    if (p1Rx) p1Rx.textContent = `${reaction} MS`;
+
+    const sigText = document.getElementById('duel-signal-text');
+    const subCue = document.getElementById('duel-sub-cue');
+
+    gameState.p1Score += 150;
+    gameState.streak++;
+    gameState.questionsCorrect++;
+    playSound('correct');
+
+    if (sigText) {
+      sigText.className = 'duel-signal fire';
+      sigText.textContent = 'VICTORY!';
+    }
+    if (subCue) subCue.textContent = `Clean shot! Recorded reaction time: ${reaction} ms. (+150 PTS)`;
+    showBanner(`Lightning draw! ${reaction} ms reaction speed!`, true);
+    logDispatch(`Player fired with ${reaction}ms reflex.`, 'point');
+
+    // Update fastest record
+    const recEl = document.getElementById('duel-record-cue');
+    if (recEl && reaction < 220) {
+      recEl.textContent = `NEW RECORD TODAY: ${reaction} MS!`;
+    }
+
+    updateHUD();
+    broadcastStateSync();
+  }
+}
+
+function handleDuelBotWon(botTime) {
+  duelState = 'finished';
+  playSound('gunshot');
+  playSound('wrong');
+
+  const p2Rx = document.getElementById('duel-p2-reaction');
+  if (p2Rx) p2Rx.textContent = `${botTime} MS`;
+
+  const sigText = document.getElementById('duel-signal-text');
+  const subCue = document.getElementById('duel-sub-cue');
+
+  gameState.p2Score += 150;
+  gameState.streak = 0;
+
+  if (sigText) {
+    sigText.className = 'duel-signal ready';
+    sigText.textContent = 'DEFEAT!';
+  }
+  if (subCue) subCue.textContent = `Colleague bot drew first in ${botTime} ms! You were outgunned.`;
+  showBanner(`Opponent hit you first (${botTime} ms). Step up your reflexes!`, false);
+  logDispatch(`Opponent drew in ${botTime}ms and won duel.`, 'kill');
+
+  updateHUD();
+  broadcastStateSync();
+}
+
+// Global spacebar listener for Quick Draw
+window.addEventListener('keydown', (e) => {
+  if (gameState.activeMode === 'quickdraw' && e.code === 'Space') {
+    e.preventDefault();
+    handleDuelPlayerFire();
+  }
+});
+
+/* ==========================================================================
+   MULTIPLAYER LOBBY, BROADCASTCHANNEL & ROOM CODE SYNCHRONIZATION
+   ========================================================================== */
+function generateRandomRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let res = '';
+  for (let i = 0; i < 4; i++) {
+    res += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return res;
+}
+
+function initBroadcastChannel(code) {
+  if (broadcastChannel) {
+    broadcastChannel.close();
+  }
+  try {
+    broadcastChannel = new BroadcastChannel(`whitehall_recon_${code}`);
+    broadcastChannel.onmessage = handleRemoteMessage;
+    logDispatch(`Broadcasting on LAN channel: whitehall_recon_${code}`);
+  } catch (err) {
+    console.warn("BroadcastChannel unavailable:", err);
+  }
+}
+
+function handleOpenLobbyModal() {
+  const drawer = document.getElementById('multiplayer-drawer');
+  if (drawer) {
+    drawer.classList.remove('hidden');
+    if (!gameState.roomCode) {
+      handleGenerateRoomCode();
+    }
+  }
+  playSound('click');
+}
+
+function handleCloseLobbyModal() {
+  const drawer = document.getElementById('multiplayer-drawer');
+  if (drawer) drawer.classList.add('hidden');
+  playSound('click');
+}
+
+function handleGenerateRoomCode() {
+  const code = generateRandomRoomCode();
+  gameState.roomCode = code;
+  gameState.isHost = true;
+  gameState.isMultiplayer = true;
+
+  const display = document.getElementById('my-room-code-display');
+  if (display) display.textContent = code;
+
+  initBroadcastChannel(code);
+
+  const statusText = document.getElementById('connection-status-text');
+  const badge = document.getElementById('connection-status-badge');
+  if (statusText) statusText.textContent = `HOSTING ROOM: ${code}`;
+  if (badge) badge.className = 'badge badge-green';
+
+  const lobbyBadge = document.getElementById('lobby-state-badge');
+  const lobbyName = document.getElementById('lobby-mode-name');
+  const lobbyDesc = document.getElementById('lobby-mode-desc');
+  if (lobbyBadge) lobbyBadge.textContent = `ROOM: ${code}`;
+  if (lobbyName) lobbyName.textContent = "Multiplayer Host Active";
+  if (lobbyDesc) lobbyDesc.textContent = "Waiting for colleague to enter 4-character code in adjacent tab/desk.";
+
+  logDispatch(`Created room ${code}. Ready for peer connection.`, 'system');
+  playSound('click');
+}
+
+function handleCopyRoomCode() {
+  if (!gameState.roomCode) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(gameState.roomCode).then(() => {
+      showBanner(`Room code '${gameState.roomCode}' copied to clipboard!`, true);
+      playSound('click');
+    }).catch(() => {
+      showBanner(`Room code: ${gameState.roomCode}`, true);
+    });
+  } else {
+    showBanner(`Room code: ${gameState.roomCode}`, true);
+  }
+}
+
+function handleJoinRoom() {
+  const input = document.getElementById('join-room-input');
+  if (!input) return;
+  const code = input.value.trim().toUpperCase();
+
+  if (code.length !== 4) {
+    showBanner("Please enter a valid 4-character room code.", false);
+    playSound('wrong');
+    return;
+  }
+
+  gameState.roomCode = code;
+  gameState.isHost = false;
+  gameState.isMultiplayer = true;
+
+  initBroadcastChannel(code);
+
+  // Send handshake message
+  sendRemoteMessage({
+    type: 'JOIN_HANDSHAKE',
+    sender: 'PLAYER_2',
+    code: code
+  });
+
+  const statusText = document.getElementById('connection-status-text');
+  const badge = document.getElementById('connection-status-badge');
+  if (statusText) statusText.textContent = `JOINED ROOM: ${code}`;
+  if (badge) badge.className = 'badge badge-green';
+
+  const lobbyBadge = document.getElementById('lobby-state-badge');
+  const lobbyName = document.getElementById('lobby-mode-name');
+  if (lobbyBadge) lobbyBadge.textContent = `CONNECTED: ${code}`;
+  if (lobbyName) lobbyName.textContent = "Multiplayer Peer Active";
+
+  showBanner(`Connected to Room ${code}! Sync established.`, true);
+  logDispatch(`Handshake broadcast to Room ${code}.`, 'point');
+  playSound('correct');
+  handleCloseLobbyModal();
+}
+
+function handleSwitchToSolo() {
+  gameState.isMultiplayer = false;
+  gameState.roomCode = '';
+  if (broadcastChannel) broadcastChannel.close();
+
+  const statusText = document.getElementById('connection-status-text');
+  const badge = document.getElementById('connection-status-badge');
+  if (statusText) statusText.textContent = `SOLO : DEEP-DESK AI`;
+  if (badge) badge.className = 'badge badge-blue';
+
+  const lobbyBadge = document.getElementById('lobby-state-badge');
+  const lobbyName = document.getElementById('lobby-mode-name');
+  const lobbyDesc = document.getElementById('lobby-mode-desc');
+  if (lobbyBadge) lobbyBadge.textContent = 'LAN / WEBRTC';
+  if (lobbyName) lobbyName.textContent = "Solo Reconnaissance";
+  if (lobbyDesc) lobbyDesc.textContent = "Engaging tactical colleague bot. Challenge office mates via room code.";
+
+  showBanner("Switched back to Solo Workstation mode.", true);
+  logDispatch("Session returned to solo workstation.", 'system');
+  playSound('click');
+  handleCloseLobbyModal();
+}
+
+function sendRemoteMessage(data) {
+  if (broadcastChannel) {
+    broadcastChannel.postMessage(data);
+  }
+}
+
+function handleRemoteMessage(event) {
+  const data = event.data;
+  if (!data || typeof data !== 'object') return;
+
+  if (data.type === 'JOIN_HANDSHAKE') {
+    logDispatch(`Remote challenger joined room ${data.code}!`, 'point');
+    showBanner(`Opponent connected to Room ${data.code}! Real-time link live.`, true);
+    playSound('correct');
+    // Reply with current state
+    broadcastStateSync();
+  } else if (data.type === 'STATE_SYNC') {
+    if (data.p1Score !== undefined) gameState.p2Score = data.p1Score;
+    updateHUD();
+  } else if (data.type === 'C4_MOVE') {
+    if (gameState.activeMode === 'connect4') {
+      dropConnect4Chip(data.col, data.player);
+    }
+  }
+}
+
+function broadcastStateSync() {
+  sendRemoteMessage({
+    type: 'STATE_SYNC',
+    p1Score: gameState.p1Score,
+    round: gameState.round,
+    activeMode: gameState.activeMode
+  });
+}
+
+function simulateOpponentTurn(gameType, p1Won) {
+  if (gameState.isMultiplayer) return; // In multiplayer, real peer responds
+
+  // Bot accuracy logic based on difficulty
+  let botChance = 0.7;
+  if (gameState.botDifficulty === 'easy') botChance = 0.4;
+  else if (gameState.botDifficulty === 'hard') botChance = 0.9;
+  else if (gameState.botDifficulty === 'expert') botChance = 0.98;
+
+  const botGotRight = Math.random() < botChance;
+
+  setTimeout(() => {
+    if (botGotRight) {
+      gameState.p2Score += 100;
+      logDispatch("Colleague Bot scored +100 PTS on reconnaissance.", 'system');
+    } else {
+      logDispatch("Colleague Bot submitted erroneous answer.", 'system');
+    }
+    updateHUD();
+  }, 400 + Math.random() * 600);
+}
+
+function handleBotDifficultyChange(diff) {
+  gameState.botDifficulty = diff;
+  logDispatch(`Bot difficulty calibrated to: ${diff.toUpperCase()}`);
+  playSound('click');
+}
+
+/* ==========================================================================
+   NAVIGATION & ROUND CONTROL
+   ========================================================================== */
+function switchGameMode(mode) {
+  gameState.activeMode = mode;
+
+  // Update tabs
+  const tabs = document.querySelectorAll('.nav-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  const activeTab = document.getElementById(`tab-${mode}`);
+  if (activeTab) activeTab.classList.add('active');
+
+  // Hide all view containers
+  const modules = document.querySelectorAll('.game-view-module');
+  modules.forEach(m => m.classList.add('hidden'));
+
+  // Show target container
+  const target = document.getElementById(`game-${mode}-container`);
+  if (target) target.classList.remove('hidden');
+
+  // Update stage banner & title
+  const stgHeadline = document.getElementById('stage-headline');
+  const stgBadge = document.getElementById('stage-badge');
+
+  if (mode === 'bone') {
+    if (stgHeadline) stgHeadline.textContent = "Comparative Osteology Reconnaissance";
+    if (stgBadge) stgBadge.textContent = "INTELLIGENCE BRIEFING";
+    loadBoneQuestion();
+  } else if (mode === 'death') {
+    if (stgHeadline) stgHeadline.textContent = "Celebrity Mortality & Forensics";
+    if (stgBadge) stgBadge.textContent = "HISTORICAL ARCHIVE";
+    loadDeathQuestion();
+  } else if (mode === 'trivia') {
+    if (stgHeadline) stgHeadline.textContent = "British Trivia Showdown";
+    if (stgBadge) stgBadge.textContent = "PUB & CROWN LORE";
+    loadTriviaQuestion();
+  } else if (mode === 'weapon') {
+    if (stgHeadline) stgHeadline.textContent = "Armory & Defence Platform Recon";
+    if (stgBadge) stgBadge.textContent = "ORDNANCE RECON";
+    loadWeaponQuestion();
+  } else if (mode === 'camo') {
+    if (stgHeadline) stgHeadline.textContent = "Military Camouflage Pattern ID";
+    if (stgBadge) stgBadge.textContent = "SURFACE CONCEALMENT";
+    loadCamoQuestion();
+  } else if (mode === 'connect4') {
+    if (stgHeadline) stgHeadline.textContent = "Connect 4 Tactical Grid";
+    if (stgBadge) stgBadge.textContent = "OFFICE HEAD-TO-HEAD";
+    initConnect4();
+  } else if (mode === 'quickdraw') {
+    if (stgHeadline) stgHeadline.textContent = "Quick Draw Reaction Standoff";
+    if (stgBadge) stgBadge.textContent = "REFLEX GAUNTLET";
+    startDuelRound();
+  }
+
+  dismissBanner();
+  playSound('click');
+  logDispatch(`Switched station to ${mode.toUpperCase()} arena.`);
+}
+
+function handleNextQuestion() {
+  gameState.round = (gameState.round % gameState.totalRounds) + 1;
+  updateHUD();
+
+  if (gameState.activeMode === 'bone') {
+    currentBoneIdx++;
+    loadBoneQuestion();
+  } else if (gameState.activeMode === 'death') {
+    currentDeathIdx++;
+    loadDeathQuestion();
+  } else if (gameState.activeMode === 'trivia') {
+    currentTriviaIdx++;
+    loadTriviaQuestion();
+  } else if (gameState.activeMode === 'weapon') {
+    currentWeaponIdx++;
+    loadWeaponQuestion();
+  } else if (gameState.activeMode === 'camo') {
+    currentCamoIdx++;
+    loadCamoQuestion();
+  } else if (gameState.activeMode === 'connect4') {
+    initConnect4();
+  } else if (gameState.activeMode === 'quickdraw') {
+    startDuelRound();
+  }
+
+  dismissBanner();
+  playSound('click');
+}
+
+function restartCurrentGame() {
+  gameState.p1Score = 0;
+  gameState.p2Score = 0;
+  gameState.streak = 0;
+  gameState.questionsAnswered = 0;
+  gameState.questionsCorrect = 0;
+  gameState.round = 1;
+  updateHUD();
+
+  if (gameState.activeMode === 'bone') loadBoneQuestion();
+  else if (gameState.activeMode === 'death') loadDeathQuestion();
+  else if (gameState.activeMode === 'trivia') loadTriviaQuestion();
+  else if (gameState.activeMode === 'weapon') loadWeaponQuestion();
+  else if (gameState.activeMode === 'camo') loadCamoQuestion();
+  else if (gameState.activeMode === 'connect4') initConnect4();
+  else if (gameState.activeMode === 'quickdraw') startDuelRound();
+
+  showBanner("Match restarted. All scores reset to zero.", true);
+  playSound('click');
+}
+
+/* ==========================================================================
+   APP STATE PERSISTENCE (NOTEBOOK APPS SHIM API)
+   ========================================================================== */
+async function saveTelemetryState() {
+  if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+    try {
+      await window.notebookAppApi.setAppState({
+        p1Score: gameState.p1Score,
+        p2Score: gameState.p2Score,
+        streak: gameState.streak,
+        soundEnabled: soundEnabled,
+        theme: document.documentElement.getAttribute('data-theme') || 'light'
+      });
+    } catch (e) {
+      console.warn("Could not save app state:", e);
+    }
+  }
+}
+
+async function restoreTelemetryState() {
+  if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+    try {
+      const saved = await window.notebookAppApi.getAppState();
+      if (saved && typeof saved === 'object') {
+        if (saved.p1Score !== undefined) gameState.p1Score = saved.p1Score;
+        if (saved.p2Score !== undefined) gameState.p2Score = saved.p2Score;
+        if (saved.streak !== undefined) gameState.streak = saved.streak;
+        if (saved.soundEnabled !== undefined) {
+          soundEnabled = saved.soundEnabled;
+          const label = document.getElementById('sound-label');
+          if (label) label.textContent = soundEnabled ? 'Audio: ON' : 'Audio: OFF';
+        }
+        if (saved.theme) {
+          document.documentElement.setAttribute('data-theme', saved.theme);
+        }
+        updateHUD();
+      }
+    } catch (e) {
+      console.warn("Could not restore app state:", e);
+    }
+  }
+}
+
+/* ==========================================================================
+   INITIALISATION ON LOAD
+   ========================================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+
+  // Session timer
+  matchTimerInterval = setInterval(() => {
+    const elapsedSec = Math.floor((Date.now() - gameState.startTime) / 1000);
+    const m = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
+    const s = (elapsedSec % 60).toString().padStart(2, '0');
+    const timerEl = document.getElementById('hud-match-timer');
+    if (timerEl) timerEl.textContent = `${m}:${s} ELAPSED`;
+  }, 1000);
+
+  // Initialize initial game
+  loadBoneQuestion();
+  updateHUD();
+  restoreTelemetryState();
+});
+</script>
+</body>
+</html>
