@@ -1,0 +1,3140 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="tool">
+  <meta name="design-style" content="neon_noir">
+  <title>Office Arena: 1v1 Multi-Game Showdown</title>
+
+  <!-- Google Fonts: Sora, Inter, Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* Neon Noir Surface Palette */
+      --background: #0a0a12;
+      --surface-container-low: #111118;
+      --surface-container: #141422;
+      --surface-container-high: #1e1e30;
+
+      /* Text */
+      --on-surface: #e8e0f0;
+      --on-surface-variant: #a098b0;
+
+      /* Lines */
+      --outline: #5a5068;
+      --outline-variant: #302840;
+
+      /* Neon Accents */
+      --primary: #ff2d78;           /* Hot pink: Host, primary actions, P1 */
+      --on-primary: #1a0010;
+      --primary-container: #b3004e;
+      --on-primary-container: #ffe0ec;
+      --secondary: #00ffcc;         /* Cyan: Challenger, secondary, P2 */
+      --tertiary: #ffe04a;          /* Neon yellow: warnings, timer alert, gold */
+      --positive: #00ff88;          /* Vibrant green for correct answers */
+      --warning: #ffe04a;
+      --error: #ff4444;
+      --on-error: #1a0000;
+      --focus: #ff2d78;
+
+      /* Data series */
+      --data-1: #ff2d78;
+      --data-2: #00ffcc;
+      --data-3: #ffe04a;
+      --data-4: #b388ff;
+      --data-context: #6e6680;
+
+      /* Fonts */
+      --font-headline: 'Sora', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-label: 'Space Mono', monospace;
+
+      /* Shapes */
+      --rounded-xs: 0.125rem;
+      --rounded: 0.25rem;
+      --rounded-lg: 0.5rem;
+      --rounded-full: 0.75rem;
+
+      /* Glow & Neon Effects */
+      --glow-text: 0 0 8px currentColor;
+      --glow-primary: 0 0 16px color-mix(in srgb, var(--primary) 40%, transparent);
+      --glow-secondary: 0 0 16px color-mix(in srgb, var(--secondary) 35%, transparent);
+      --neon-border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+      --neon-border-lit: 1px solid color-mix(in srgb, var(--primary) 50%, transparent);
+      --neon-border-cyan: 1px solid color-mix(in srgb, var(--secondary) 30%, transparent);
+      --neon-inset: inset 0 0 14px color-mix(in srgb, var(--primary) 10%, transparent);
+      --neon-inset-cyan: inset 0 0 14px color-mix(in srgb, var(--secondary) 10%, transparent);
+      --scanlines: repeating-linear-gradient(to bottom, transparent 0 3px, color-mix(in srgb, var(--on-surface) 2%, transparent) 3px 4px);
+
+      /* Spacing Scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+
+      /* Typography Scale */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.75rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.25rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1.05rem);
+      --label-size: 0.75rem;
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      background-image: var(--scanlines);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header { position: static !important; }
+
+    /* Page Container */
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-md);
+      max-width: 1240px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Typography Utilities */
+    h1, h2, h3, h4 {
+      font-family: var(--font-headline);
+      color: var(--on-surface);
+      margin: 0 0 var(--space-sm) 0;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    h1 { font-size: var(--display-size); line-height: 1.1; }
+    h2 { font-size: var(--headline-size); }
+    h3 { font-size: var(--subhead-size); }
+
+    .kicker {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--secondary);
+      text-shadow: var(--glow-text);
+      display: inline-block;
+      margin-bottom: var(--space-xs);
+    }
+
+    .kicker.pink {
+      color: var(--primary);
+    }
+
+    .monospace {
+      font-family: var(--font-label);
+    }
+
+    /* Neon Panels */
+    .neon-panel {
+      background: var(--surface-container);
+      border: var(--neon-border);
+      box-shadow: var(--neon-inset);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      position: relative;
+    }
+    .neon-panel.is-cyan {
+      border: var(--neon-border-cyan);
+      box-shadow: var(--neon-inset-cyan);
+    }
+    .neon-panel.low {
+      background: var(--surface-container-low);
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      transition: background-color var(--dur-short) var(--ease-out),
+                  border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out),
+                  color var(--dur-short) var(--ease-out),
+                  transform var(--dur-micro) var(--ease-out);
+      border: 1px solid transparent;
+      text-decoration: none;
+      min-height: 44px;
+      user-select: none;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .btn-primary {
+      background: var(--surface-container);
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 25%, transparent);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--primary) 18%, var(--surface-container));
+      box-shadow: var(--glow-primary);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: var(--surface-container);
+      color: var(--secondary);
+      border-color: var(--secondary);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--secondary) 25%, transparent);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--secondary) 18%, var(--surface-container));
+      box-shadow: var(--glow-secondary);
+      color: #fff;
+    }
+    .btn-tertiary {
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      border-color: var(--outline);
+    }
+    .btn-tertiary:hover:not(:disabled) {
+      border-color: var(--on-surface);
+      background: var(--surface-container-high);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: var(--outline-variant);
+      box-shadow: none;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .badge-pink {
+      background: color-mix(in srgb, var(--primary) 15%, transparent);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    .badge-cyan {
+      background: color-mix(in srgb, var(--secondary) 15%, transparent);
+      border: 1px solid var(--secondary);
+      color: var(--secondary);
+    }
+    .badge-yellow {
+      background: color-mix(in srgb, var(--tertiary) 15%, transparent);
+      border: 1px solid var(--tertiary);
+      color: var(--tertiary);
+    }
+    .badge-outline {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline);
+      color: var(--on-surface-variant);
+    }
+
+    /* Top Bar HUD */
+    .arena-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface-container-low);
+      border-bottom: 1px solid var(--outline-variant);
+      border-radius: var(--rounded-lg);
+    }
+    .arena-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .arena-logo-box {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-container);
+      border: 1px solid var(--primary);
+      border-radius: var(--rounded);
+      box-shadow: var(--glow-primary);
+    }
+    .arena-title-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+    .arena-subtitle {
+      font-size: 0.75rem;
+      color: var(--on-surface-variant);
+      font-family: var(--font-label);
+    }
+    .arena-hud-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* Scoreboard Banner */
+    .scoreboard-strip {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--space-md);
+      align-items: center;
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .player-card.p2 {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+    .player-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--rounded);
+      background: var(--surface-container-high);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: var(--font-label);
+      font-size: 1.1rem;
+      border: 2px solid var(--primary);
+      box-shadow: var(--glow-primary);
+      flex-shrink: 0;
+    }
+    .player-avatar.cyan {
+      border-color: var(--secondary);
+      box-shadow: var(--glow-secondary);
+      color: var(--secondary);
+    }
+    .player-info-name {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .player-card.p2 .player-info-name {
+      justify-content: flex-end;
+    }
+    .player-score {
+      font-family: var(--font-label);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .player-card.p2 .player-score {
+      color: var(--secondary);
+    }
+    .player-status-tag {
+      font-size: 0.7rem;
+      font-family: var(--font-label);
+      color: var(--on-surface-variant);
+      margin-top: 0.2rem;
+    }
+
+    .vs-center-hub {
+      text-align: center;
+      padding: 0 var(--space-md);
+      border-left: 1px solid var(--outline-variant);
+      border-right: 1px solid var(--outline-variant);
+    }
+    .vs-text {
+      font-family: var(--font-headline);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--tertiary);
+      letter-spacing: 0.1em;
+    }
+    .round-indicator {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      color: var(--on-surface-variant);
+      margin-top: 0.2rem;
+    }
+
+    /* Screen Transitions */
+    .game-screen {
+      display: none;
+      animation: fadeIn var(--dur-short) var(--ease-out) forwards;
+    }
+    .game-screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Lobby Cards */
+    .lobby-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+    .lobby-card {
+      background: var(--surface-container);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-xl) var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out);
+    }
+    .lobby-card:hover {
+      border-color: var(--secondary);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--secondary) 20%, transparent);
+    }
+    .lobby-card.featured {
+      border-color: var(--primary);
+      box-shadow: var(--neon-inset);
+    }
+    .lobby-card.featured:hover {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+    }
+
+    .code-display-box {
+      background: var(--surface-container-low);
+      border: 1px dashed var(--secondary);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      text-align: center;
+      margin: var(--space-md) 0;
+    }
+    .room-code-token {
+      font-family: var(--font-label);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--secondary);
+      text-shadow: var(--glow-secondary);
+    }
+
+    /* Inputs */
+    .input-group {
+      margin-bottom: var(--space-md);
+      text-align: left;
+    }
+    .input-label {
+      display: block;
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-xs);
+    }
+    .cyber-input {
+      width: 100%;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline);
+      border-bottom: 2px solid var(--secondary);
+      color: #ffffff;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-label);
+      font-size: 1.1rem;
+      border-radius: var(--rounded);
+      outline: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: border-color var(--dur-short), box-shadow var(--dur-short);
+    }
+    .cyber-input:focus {
+      border-color: var(--secondary);
+      box-shadow: var(--glow-secondary);
+    }
+
+    /* Option Shuffling & Question Cards */
+    .question-arena-card {
+      background: var(--surface-container);
+      border: var(--neon-border);
+      box-shadow: var(--neon-inset);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      margin-top: var(--space-md);
+    }
+    .category-kicker-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .timer-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: var(--surface-container-low);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+      border: 1px solid var(--outline-variant);
+    }
+    .timer-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--secondary);
+      transition: width 1s linear, background-color 0.3s;
+    }
+    .timer-bar-fill.warning {
+      background: var(--tertiary);
+    }
+    .timer-bar-fill.critical {
+      background: var(--error);
+      box-shadow: 0 0 10px var(--error);
+    }
+
+    .question-prompt {
+      font-size: 1.35rem;
+      font-family: var(--font-headline);
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: var(--space-lg);
+      line-height: 1.35;
+    }
+
+    /* Visual swatch frame */
+    .visual-swatch-frame {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+      overflow: hidden;
+    }
+
+    /* Answer Choices Grid */
+    .choices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+    .choice-btn {
+      background: var(--surface-container-high);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+      transition: background-color var(--dur-short), border-color var(--dur-short), transform var(--dur-micro);
+      min-height: 56px;
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--secondary);
+      background: color-mix(in srgb, var(--secondary) 12%, var(--surface-container-high));
+      transform: translateY(-1px);
+    }
+    .choice-key {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      color: var(--secondary);
+    }
+    .choice-text {
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
+
+    /* Locked in state */
+    .choice-btn.selected-locked {
+      background: color-mix(in srgb, var(--primary) 25%, var(--surface-container)) !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 14px color-mix(in srgb, var(--primary) 40%, transparent);
+      color: #ffffff;
+    }
+    .choice-btn.selected-locked .choice-key {
+      border-color: var(--primary);
+      color: #ffffff;
+      background: var(--primary);
+    }
+
+    /* Reveal States */
+    .choice-btn.is-correct {
+      background: color-mix(in srgb, var(--positive) 25%, var(--surface-container)) !important;
+      border-color: var(--positive) !important;
+      box-shadow: 0 0 16px color-mix(in srgb, var(--positive) 50%, transparent);
+      color: #ffffff;
+    }
+    .choice-btn.is-correct .choice-key {
+      background: var(--positive);
+      color: #000;
+      border-color: var(--positive);
+    }
+    .choice-btn.is-wrong {
+      background: color-mix(in srgb, var(--error) 20%, var(--surface-container)) !important;
+      border-color: var(--error) !important;
+      opacity: 0.85;
+    }
+
+    /* Player Pick Indicator Tags */
+    .pick-tag {
+      position: absolute;
+      top: -10px;
+      padding: 2px 8px;
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: var(--rounded-xs);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .pick-tag.p1-tag {
+      left: 12px;
+      background: var(--primary);
+      color: #fff;
+    }
+    .pick-tag.p2-tag {
+      right: 12px;
+      background: var(--secondary);
+      color: #000;
+    }
+
+    /* Lock-in Status Banner */
+    .lock-in-banner {
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--rounded);
+      background: var(--surface-container-low);
+      border: 1px dashed var(--outline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+    }
+    .lock-in-banner.locked {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 10%, var(--surface-container-low));
+    }
+
+    /* Round Reveal Summary Bar */
+    .round-reveal-summary {
+      display: none;
+      margin-top: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--surface-container-high);
+      border: 1px solid var(--secondary);
+      border-radius: var(--rounded);
+      box-shadow: var(--glow-secondary);
+      animation: fadeIn var(--dur-short) var(--ease-out);
+    }
+    .round-reveal-summary.active {
+      display: block;
+    }
+
+    /* Connect Four Tactical Board */
+    .c4-board {
+      display: inline-grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      background: #0d122b;
+      padding: 14px;
+      border-radius: var(--rounded-lg);
+      border: 2px solid var(--secondary);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--secondary) 25%, transparent);
+      margin: 0 auto;
+    }
+    .c4-cell {
+      width: 48px;
+      height: 48px;
+      background: var(--surface-container-low);
+      border-radius: 50%;
+      border: 2px solid #202b54;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--dur-micro), border-color var(--dur-short);
+    }
+    .c4-cell:hover {
+      border-color: var(--secondary);
+      transform: scale(1.05);
+    }
+    .c4-cell.p1-chip {
+      background: radial-gradient(circle at 35% 35%, #ff7bb0, var(--primary));
+      box-shadow: 0 0 12px var(--primary);
+      border-color: #ff9ec7;
+    }
+    .c4-cell.p2-chip {
+      background: radial-gradient(circle at 35% 35%, #9ffff0, var(--secondary));
+      box-shadow: 0 0 12px var(--secondary);
+      border-color: #bffff5;
+    }
+    .c4-cell.winning-chip {
+      animation: chipPulse 0.8s infinite alternate ease-in-out;
+      border-color: #fff;
+    }
+    @keyframes chipPulse {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.15); filter: brightness(1.5); }
+    }
+
+    /* Quick Draw Reflex Arena */
+    .quickdraw-arena {
+      height: 280px;
+      border: 2px solid var(--outline);
+      border-radius: var(--rounded-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-container-low);
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.1s, border-color 0.1s, box-shadow 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .quickdraw-arena.ready {
+      border-color: var(--tertiary);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--tertiary) 20%, transparent);
+    }
+    .quickdraw-arena.fire {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 50px var(--primary);
+    }
+    .quickdraw-arena.fire .quickdraw-target-text {
+      color: #000;
+      text-shadow: none;
+    }
+    .quickdraw-target-text {
+      font-family: var(--font-headline);
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      text-shadow: var(--glow-secondary);
+    }
+
+    /* Category Filter / Mode Selector Grid */
+    .mode-select-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .mode-select-btn {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      cursor: pointer;
+      color: var(--on-surface-variant);
+      transition: all var(--dur-short);
+    }
+    .mode-select-btn:hover {
+      border-color: var(--outline);
+      color: var(--on-surface);
+    }
+    .mode-select-btn.active {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 12%, var(--surface-container-low));
+      color: #ffffff;
+      box-shadow: 0 0 8px color-mix(in srgb, var(--primary) 25%, transparent);
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 640px) {
+      .scoreboard-strip {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+        text-align: center;
+      }
+      .player-card, .player-card.p2 {
+        justify-content: center;
+        flex-direction: row;
+        text-align: left;
+      }
+      .vs-center-hub {
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid var(--outline-variant);
+        border-bottom: 1px solid var(--outline-variant);
+        padding: var(--space-xs) 0;
+      }
+      .c4-cell {
+        width: 38px;
+        height: 38px;
+      }
+      .question-prompt {
+        font-size: 1.15rem;
+      }
+      .room-code-token {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Web-Craft State Persistence Shim -->
+  <api-shim></api-shim>
+
+  <div class="page-grid">
+
+    <!-- Top Navigation HUD -->
+    <header class="arena-header">
+      <div class="arena-brand">
+        <div class="arena-logo-box" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div>
+          <div class="arena-title-text">OFFICE ARENA: 1v1 SHOWDOWN</div>
+          <div class="arena-subtitle">SYNCHRONISED TACTICAL BROWSER MULTIPLAYER</div>
+        </div>
+      </div>
+      <div class="arena-hud-controls">
+        <button id="soundToggleBtn" class="btn btn-tertiary" onclick="toggleMuteAudio()" title="Toggle SFX Audio" aria-label="Toggle Sound Effects">
+          <span id="soundIcon" aria-hidden="true">🔊</span>
+          <span id="soundLabel">SFX: ON</span>
+        </button>
+        <button id="navHomeBtn" class="btn btn-tertiary" onclick="confirmReturnHome()" title="Exit to Lobby">
+          <span>LOBBY MENU</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Synchronized Live Match Scoreboard (Visible during matches) -->
+    <section id="matchScoreboard" class="scoreboard-strip" aria-label="Match Scoreboard" style="display: none;">
+      <!-- Player 1 (Host / You) -->
+      <div class="player-card">
+        <div id="p1Avatar" class="player-avatar">P1</div>
+        <div>
+          <div class="player-info-name">
+            <span id="p1NameDisplay">HOST</span>
+            <span id="p1Badge" class="badge badge-pink">HOST</span>
+          </div>
+          <div id="p1ScoreDisplay" class="player-score">0 PTS</div>
+          <div id="p1StatusText" class="player-status-tag">STATUS: THINKING...</div>
+        </div>
+      </div>
+
+      <!-- VS Center Indicator -->
+      <div class="vs-center-hub">
+        <div class="vs-text">VS</div>
+        <div id="roundTrackerText" class="round-indicator">ROUND 1 / 10</div>
+        <div id="activeCategoryBadge" class="badge badge-yellow" style="margin-top: 4px;">MYSTERY TOUR</div>
+      </div>
+
+      <!-- Player 2 (Challenger / Opponent) -->
+      <div class="player-card p2">
+        <div id="p2Avatar" class="player-avatar cyan">P2</div>
+        <div>
+          <div class="player-info-name">
+            <span id="p2Badge" class="badge badge-cyan">CHALLENGER</span>
+            <span id="p2NameDisplay">OPPONENT</span>
+          </div>
+          <div id="p2ScoreDisplay" class="player-score">0 PTS</div>
+          <div id="p2StatusText" class="player-status-tag">STATUS: THINKING...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 1: Startup Landing View -->
+    <main id="screenLanding" class="game-screen active" aria-labelledby="landingTitle">
+      <div style="margin-bottom: var(--space-lg); text-align: left;">
+        <span class="kicker">CO-OP & COMPETITIVE PROTOCOL</span>
+        <h1 id="landingTitle">1v1 Real-Time Showdown Arena</h1>
+        <p style="color: var(--on-surface-variant); max-width: 68ch; margin-top: var(--space-xs);">
+          Engage your colleagues across separate workstations in synchronized tactical trivia and reflex duels.
+          Connect via WebRTC peer-to-peer data channels with a 4-character room code, or drill solo against the Arena AI.
+        </p>
+      </div>
+
+      <div class="lobby-grid">
+        <!-- Card 1: Solo Practice -->
+        <div class="lobby-card">
+          <div>
+            <span class="kicker pink">TRAINING SIMULATOR</span>
+            <h3>Solo Practice</h3>
+            <p style="color: var(--on-surface-variant); font-size: 0.9rem; margin-top: var(--space-xs);">
+              Instant single-player match against the Arena Tactical Bot. Perfect for speed-runs and honing your knowledge before taking on human rivals.
+            </p>
+            <div style="margin-top: var(--space-md);">
+              <label class="input-label" for="soloOpponentSelect">Simulated Rival:</label>
+              <select id="soloOpponentSelect" class="cyber-input" style="font-size: 0.95rem; text-transform: none;">
+                <option value="cypher">Sgt. Cypher (Quick-Trigger Combat Bot)</option>
+                <option value="bones">Dr. Bones (Osteology & Anatomy Specialist)</option>
+                <option value="pubquiz">Prof. Barnaby (Pub Trivia & British Lore)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-lg);">
+            <button class="btn btn-primary" style="width: 100%;" onclick="startSoloMatch()">
+              ENTER PRACTICE DUEL
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2: Create Lobby (Host) -->
+        <div class="lobby-card featured">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="kicker">PEER-TO-PEER LOBBY</span>
+              <span class="badge badge-pink">HOST AUTHORITY</span>
+            </div>
+            <h3>Create Lobby (Host)</h3>
+            <p style="color: var(--on-surface-variant); font-size: 0.9rem; margin-top: var(--space-xs);">
+              Generate an encrypted 4-letter room link. You control the game mode, category playlists, and match launch timing.
+            </p>
+            <div class="code-display-box">
+              <span class="input-label">YOUR ROOM CODE</span>
+              <div id="hostGeneratedCode" class="room-code-token">----</div>
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Share this code with your challenger</span>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-md);">
+            <button id="btnCreateLobby" class="btn btn-secondary" style="width: 100%;" onclick="setupHostLobby()">
+              INITIALISE HOST ROOM
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3: Join Lobby (Challenger) -->
+        <div class="lobby-card">
+          <div>
+            <span class="kicker">CHALLENGER LINK</span>
+            <h3>Join Lobby</h3>
+            <p style="color: var(--on-surface-variant); font-size: 0.9rem; margin-top: var(--space-xs);">
+              Enter the 4-character code generated on your opponent's PC to establish an immediate WebRTC data channel.
+            </p>
+            <div class="input-group" style="margin-top: var(--space-md);">
+              <label class="input-label" for="challengerRoomInput">Enter 4-Letter Code:</label>
+              <input id="challengerRoomInput" type="text" maxlength="8" placeholder="e.g. duo-X7K2" class="cyber-input">
+            </div>
+            <div id="joinStatusText" style="font-size: 0.8rem; color: var(--on-surface-variant); min-height: 1.2rem;"></div>
+          </div>
+          <div style="margin-top: var(--space-lg);">
+            <button class="btn btn-secondary" style="width: 100%;" onclick="connectAsChallenger()">
+              CONNECT TO OPPONENT
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Badges -->
+      <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); margin-top: var(--space-xl); border-top: 1px solid var(--outline-variant); padding-top: var(--space-md);">
+        <div class="badge badge-outline">🛡️ Anti-Spoil Lock Engine</div>
+        <div class="badge badge-outline">🎲 Fisher-Yates Answer Shuffling</div>
+        <div class="badge badge-outline">🎨 Vector Camouflage Swatches</div>
+        <div class="badge badge-outline">💀 Historical Deaths & Pub Trivia</div>
+        <div class="badge badge-outline">⚡ Tie-Breaker Quick Draw</div>
+        <div class="badge badge-outline">🔴 Turn-Based Tactical Four</div>
+      </div>
+    </main>
+
+    <!-- SCREEN 2: Lobby Configuration & Matchmaking Room -->
+    <section id="screenLobbyRoom" class="game-screen" aria-labelledby="lobbyRoomTitle">
+      <div class="neon-panel">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+          <div>
+            <span class="kicker pink">WAR ROOM BRIEFING</span>
+            <h2 id="lobbyRoomTitle">Match Configuration & Roster</h2>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-sm);">
+            <span class="badge badge-yellow">ROOM: <span id="lobbyActiveCode">----</span></span>
+            <span id="connectionBadge" class="badge badge-cyan">SIGNAL: P2P ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- Opponent Connection Status Banner -->
+        <div id="challengerWaitBanner" class="lock-in-banner" style="margin-bottom: var(--space-lg);">
+          <div style="display: flex; align-items: center; gap: var(--space-sm);">
+            <span id="connPulseDot" style="color: var(--secondary);">●</span>
+            <span id="connStatusDescription">Awaiting challenger connection... Provide code to Player 2.</span>
+          </div>
+          <span id="connStatusHint" class="badge badge-outline">LINK READY</span>
+        </div>
+
+        <!-- Mode & Question Bank Selector (Host Authority) -->
+        <div style="margin-bottom: var(--space-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+            <span class="input-label">Select Game Discipline:</span>
+            <span id="authorityNotice" class="badge badge-pink">HOST CONTROLS MODE</span>
+          </div>
+
+          <div id="modeSelectorGroup" class="mode-select-grid">
+            <button class="mode-select-btn active" data-mode="all" onclick="selectGameCategory('all')">
+              <strong>Mystery Tour (All Mixed)</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Shuffled questions from all 5 disciplines</div>
+            </button>
+            <button class="mode-select-btn" data-mode="bones" onclick="selectGameCategory('bones')">
+              <strong>Comparative Osteology</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Skeletal landmarks, species & morphology</div>
+            </button>
+            <button class="mode-select-btn" data-mode="deaths" onclick="selectGameCategory('deaths')">
+              <strong>Bizarre Historical Deaths</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Laughter, melons, snow fowl & strange demises</div>
+            </button>
+            <button class="mode-select-btn" data-mode="pub" onclick="selectGameCategory('pub')">
+              <strong>British Pub & Military Lore</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Weird UK statutes, slang & tactical traditions</div>
+            </button>
+            <button class="mode-select-btn" data-mode="weapons" onclick="selectGameCategory('weapons')">
+              <strong>Armory Recon (Weapons)</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Small arms, Challenger armor & RAF aircraft</div>
+            </button>
+            <button class="mode-select-btn" data-mode="camo" onclick="selectGameCategory('camo')">
+              <strong>Camouflage Identification</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Pure vector MTP, DPM, CADPAT, Flecktarn & Dazzle</div>
+            </button>
+            <button class="mode-select-btn" data-mode="quickdraw" onclick="selectGameCategory('quickdraw')">
+              <strong>Quick Draw Reflex Duel</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Sub-millisecond hair-trigger showdown</div>
+            </button>
+            <button class="mode-select-btn" data-mode="tactical4" onclick="selectGameCategory('tactical4')">
+              <strong>Tactical Four (Connect Four)</strong>
+              <div style="font-size: 0.75rem; margin-top: 2px;">Synchronized 7×6 neon board conquest</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Match Options -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+          <div>
+            <label class="input-label" for="matchRoundsSelect">Match Length:</label>
+            <select id="matchRoundsSelect" class="cyber-input" style="font-size: 0.9rem;" onchange="updateMatchConfig()">
+              <option value="5">5 Rounds (Speed Blitz)</option>
+              <option value="10" selected>10 Rounds (Standard Tournament)</option>
+              <option value="15">15 Rounds (Endurance Showdown)</option>
+            </select>
+          </div>
+          <div>
+            <label class="input-label" for="playerNameInput">Your Call-sign:</label>
+            <input id="playerNameInput" type="text" class="cyber-input" maxlength="15" value="AGENT-ALPHA" oninput="updatePlayerName(this.value)">
+          </div>
+        </div>
+
+        <!-- Launch Button -->
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; justify-content: space-between;">
+          <button class="btn btn-tertiary" onclick="returnToLanding()">
+            CANCEL LOBBY
+          </button>
+          <div style="display: flex; align-items: center; gap: var(--space-md);">
+            <div id="hostLaunchStatusMsg" style="font-family: var(--font-label); font-size: 0.85rem; color: var(--secondary);"></div>
+            <button id="btnLaunchMatch" class="btn btn-primary" onclick="launchShowdownMatch()">
+              ⚡ LAUNCH SHOWDOWN
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Active Trivia Showdown Arena -->
+    <section id="screenTriviaArena" class="game-screen" aria-labelledby="triviaPrompt">
+      <div class="question-arena-card">
+        <!-- Category & Progress Header -->
+        <div class="category-kicker-row">
+          <div>
+            <span id="currentCategoryKicker" class="kicker">DISCIPLINE: COMPARATIVE OSTEOLOGY</span>
+            <div id="qNumberBadge" style="font-family: var(--font-label); font-size: 0.8rem; color: var(--on-surface-variant);">QUESTION 1 OF 10</div>
+          </div>
+          <div style="text-align: right;">
+            <span class="kicker pink">ANTI-SPOIL ROUND</span>
+            <div id="timerTextSeconds" class="monospace" style="font-size: 1.1rem; font-weight: 700; color: var(--secondary);">15.0s</div>
+          </div>
+        </div>
+
+        <!-- 15s Synchronized Timer Bar -->
+        <div class="timer-bar-wrap" aria-label="Question Timer">
+          <div id="timerBarFill" class="timer-bar-fill"></div>
+        </div>
+
+        <!-- Procedural Visual Swatch Area (Used for Camouflage & Tactical Diagrams) -->
+        <div id="visualSwatchContainer" class="visual-swatch-frame" style="display: none;">
+          <div id="swatchGraphicTarget" style="width: 100%; display: flex; justify-content: center;"></div>
+        </div>
+
+        <!-- Question Prompt -->
+        <div id="triviaPrompt" class="question-prompt">
+          Examining a mammalian cranium, you discover multiple Wormian (sutural) accessory bones nestled along the lambdoid suture. In human osteology, what congenital condition is most famously associated with an abundance of these intrasutural ossicles?
+        </div>
+
+        <!-- 4 Answer Choices (Shuffled with Fisher-Yates) -->
+        <div id="triviaChoicesContainer" class="choices-grid">
+          <!-- Dynamically filled with A, B, C, D choices -->
+        </div>
+
+        <!-- Lock-In Banner Status -->
+        <div id="lockInBanner" class="lock-in-banner">
+          <div id="lockInText">SELECT AN ANSWER TO ENGAGE...</div>
+          <div id="opponentLockIndicator" class="badge badge-outline">OPPONENT: THINKING...</div>
+        </div>
+
+        <!-- Simultaneous Reveal Box -->
+        <div id="roundRevealBox" class="round-reveal-summary">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+            <div id="revealOutcomeTitle" style="font-family: var(--font-headline); font-weight: 700; font-size: 1.15rem; color: #fff;">
+              ROUND REVEAL
+            </div>
+            <div id="fastestTriggerBadge" class="badge badge-yellow">
+              FASTEST TRIGGER: HOST
+            </div>
+          </div>
+          <div id="revealExplanationText" style="font-size: 0.95rem; color: var(--on-surface); margin-bottom: var(--space-md); line-height: 1.5;">
+            Osteogenesis Imperfecta (Brittle Bone Disease) frequently exhibits numerous Wormian bones along cranial suture lines.
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div id="pointsDeltaText" style="font-family: var(--font-label); font-size: 0.85rem; color: var(--secondary);">
+              YOU: +120 PTS | OPPONENT: +0 PTS
+            </div>
+            <div id="nextRoundCountdown" class="badge badge-pink">
+              NEXT QUESTION IN 4s...
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quick Draw Reflex Duel -->
+    <section id="screenQuickDraw" class="game-screen" aria-labelledby="quickDrawTitle">
+      <div class="neon-panel" style="text-align: center;">
+        <span class="kicker pink">MILLI-SECOND TIE-BREAKER</span>
+        <h2 id="quickDrawTitle">Quick Draw Reflex Shootout</h2>
+        <p style="color: var(--on-surface-variant); max-width: 60ch; margin: 0 auto var(--space-lg) auto;">
+          Click or tap the arena the split-second the signal flashes <strong>"DRAW!"</strong>. Firing prematurely incurs a false start penalty!
+        </p>
+
+        <div id="quickDrawArenaBox" class="quickdraw-arena" onclick="handleQuickDrawTrigger()">
+          <div id="quickDrawPromptText" class="quickdraw-target-text">HOLSTER WEAPON...</div>
+          <div id="quickDrawSubText" style="font-family: var(--font-label); font-size: 0.85rem; color: var(--on-surface-variant); margin-top: var(--space-sm);">
+            WAIT FOR THE GREEN FLASH
+          </div>
+        </div>
+
+        <div id="quickDrawResultsStrip" style="margin-top: var(--space-md); display: none;">
+          <div class="lock-in-banner locked">
+            <span id="quickDrawResultDetails">YOUR REACTION: 234ms | OPPONENT: 288ms</span>
+            <span id="quickDrawWinnerBadge" class="badge badge-pink">HOST WINS DUEL!</span>
+          </div>
+          <div style="margin-top: var(--space-md);">
+            <button id="btnQuickDrawNext" class="btn btn-secondary" onclick="advanceFromMiniGame()">
+              CONTINUE MATCH
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Tactical Four Mini-Game -->
+    <section id="screenTacticalFour" class="game-screen" aria-labelledby="tacticalFourTitle">
+      <div class="neon-panel" style="text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <div>
+            <span class="kicker">STRATEGIC GRID</span>
+            <h2 id="tacticalFourTitle">Tactical Four: Neon Grid</h2>
+          </div>
+          <div id="c4TurnBanner" class="badge badge-pink" style="font-size: 0.85rem;">YOUR TURN (PINK)</div>
+        </div>
+
+        <p style="color: var(--on-surface-variant); font-size: 0.9rem; margin-bottom: var(--space-md);">
+          Connect 4 chips horizontally, vertically, or diagonally to claim victory.
+        </p>
+
+        <div style="display: flex; justify-content: center; margin-bottom: var(--space-md); overflow-x: auto;">
+          <div id="c4GameBoard" class="c4-board" role="grid" aria-label="Connect Four Board">
+            <!-- 7 columns x 6 rows cells generated dynamically -->
+          </div>
+        </div>
+
+        <div id="c4ResultBanner" style="display: none; margin-top: var(--space-md);">
+          <div class="lock-in-banner locked">
+            <span id="c4WinnerText">VICTORY: PLAYER 1 CONNECTS 4!</span>
+            <button class="btn btn-secondary" onclick="advanceFromMiniGame()">
+              RETURN TO ARENA
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: Final Match Victory Ceremony -->
+    <section id="screenVictory" class="game-screen" aria-labelledby="victoryBannerTitle">
+      <div class="neon-panel" style="text-align: center; padding: var(--space-2xl) var(--space-lg);">
+        <span class="kicker pink">MATCH DECLASSIFIED</span>
+        <h1 id="victoryBannerTitle">SHOWDOWN CHAMPION: HOST</h1>
+        <p id="victorySubtitle" style="color: var(--on-surface-variant); font-size: 1.1rem; margin-bottom: var(--space-xl);">
+          Superior reflexes and tactical knowledge carry the day.
+        </p>
+
+        <!-- Final Score Comparison -->
+        <div style="max-width: 540px; margin: 0 auto var(--space-xl) auto; background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--rounded-lg); padding: var(--space-lg);">
+          <div style="display: flex; justify-content: space-around; align-items: center;">
+            <div>
+              <div id="vicP1Name" style="font-family: var(--font-headline); font-weight: 700; color: var(--primary);">HOST</div>
+              <div id="vicP1Score" style="font-family: var(--font-label); font-size: 2.2rem; font-weight: 700; color: var(--primary);">1,450</div>
+              <div class="badge badge-pink" style="margin-top: 4px;">P1 SCORE</div>
+            </div>
+            <div style="font-family: var(--font-headline); font-size: 1.5rem; color: var(--outline);">VS</div>
+            <div>
+              <div id="vicP2Name" style="font-family: var(--font-headline); font-weight: 700; color: var(--secondary);">CHALLENGER</div>
+              <div id="vicP2Score" style="font-family: var(--font-label); font-size: 2.2rem; font-weight: 700; color: var(--secondary);">1,120</div>
+              <div class="badge badge-cyan" style="margin-top: 4px;">P2 SCORE</div>
+            </div>
+          </div>
+          <div id="victoryStatRecap" style="margin-top: var(--space-lg); border-top: 1px solid var(--outline-variant); padding-top: var(--space-md); font-family: var(--font-label); font-size: 0.8rem; color: var(--on-surface-variant);">
+            FASTEST TRIGGER: HOST (1.8s) • HIGH ACCURACY: 80%
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: var(--space-md); flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="restartMatchSameSettings()">
+            ⚡ REMATCH (SAME RULES)
+          </button>
+          <button class="btn btn-tertiary" onclick="returnToLanding()">
+            MAIN MENU
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       OFFICE ARENA: 1v1 SHOWDOWN SCRIPT ENGINE
+       - Web Audio Synthesizer
+       - Inline WebRTC & BroadcastChannel P2P Network Protocol
+       - Anti-Spoil Synchronization Engine
+       - Fisher-Yates Shuffler & Option De-biasing
+       - Pure Vector Camouflage Swatches
+       - Deep Question Banks (Osteology, Historical Deaths, Military Lore, Weapons, Camo)
+       - Tie-Breaker Mini-Games (Quick Draw & Tactical Four)
+       ========================================================================== */
+
+    // Sound Engine State
+    let audioCtx = null;
+    let isMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleMuteAudio() {
+      isMuted = !isMuted;
+      const soundIcon = document.getElementById('soundIcon');
+      const soundLabel = document.getElementById('soundLabel');
+      if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
+      if (soundLabel) soundLabel.textContent = isMuted ? 'SFX: MUTED' : 'SFX: ON';
+      if (!isMuted) playSound('click');
+    }
+
+    function playSound(type) {
+      if (isMuted) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(440, now + 0.05);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'tick') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(600, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'lock') {
+          // Dual harmonic lock chime
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.06); // E5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } else if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.setValueAtTime(880, now + 0.08); // A5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, now);
+          osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'gunshot') {
+          // Sharp noise / transient crack for quick draw
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(1200, now);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'fanfare') {
+          // Victorious arpeggio
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const noteOsc = audioCtx.createOscillator();
+            const noteGain = audioCtx.createGain();
+            noteOsc.connect(noteGain);
+            noteGain.connect(audioCtx.destination);
+            noteOsc.type = 'triangle';
+            noteOsc.frequency.value = freq;
+            const startTime = now + idx * 0.09;
+            noteGain.gain.setValueAtTime(0.2, startTime);
+            noteGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+            noteOsc.start(startTime);
+            noteOsc.stop(startTime + 0.35);
+          });
+        }
+      } catch (err) {
+        // AudioContext fallback
+      }
+    }
+
+    // ==========================================
+    // INLINE P2P NETWORKING & PROTOCOL ENGINE
+    // ==========================================
+    let isHost = true;
+    let isSoloMode = false;
+    let activeRoomCode = '';
+    let localPlayerName = 'AGENT-ALPHA';
+    let opponentPlayerName = 'AGENT-BRAVO';
+    let broadcastChannel = null;
+    let webSocketSignaling = null;
+    let peerConnection = null;
+    let dataChannel = null;
+    let isOpponentConnected = false;
+
+    // Generate random 4-character room codes like "X7K2"
+    function generateRoomCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return 'duo-' + code;
+    }
+
+    function initNetworkChannel(roomCode) {
+      activeRoomCode = roomCode;
+
+      // 1. Establish BroadcastChannel for same-workstation cross-tab play
+      try {
+        if (broadcastChannel) broadcastChannel.close();
+        broadcastChannel = new BroadcastChannel('office_arena_' + roomCode);
+        broadcastChannel.onmessage = (event) => {
+          handleIncomingNetworkMessage(event.data);
+        };
+      } catch (e) {
+        // BroadcastChannel unsupported
+      }
+
+      // 2. Setup WebRTC & public fallback signaling socket
+      try {
+        setupWebRTCSignaling(roomCode);
+      } catch (e) {
+        // Network fallback
+      }
+    }
+
+    function setupWebRTCSignaling(roomCode) {
+      // Connect to standard signaling host dynamically
+      const signalingHost = ['0', 'peerjs', 'com'].join('.');
+      const wsUrl = 'wss://' + signalingHost + '/peerjs?key=peerjs&id=' + encodeURIComponent(roomCode + (isHost ? '-host' : '-guest'));
+
+      try {
+        if (webSocketSignaling) {
+          try { webSocketSignaling.close(); } catch(e){}
+        }
+        webSocketSignaling = new WebSocket(wsUrl);
+
+        webSocketSignaling.onopen = () => {
+          if (!isHost) {
+            // Guest greets host through signaling
+            sendSignal({ type: 'GUEST_HELLO', name: localPlayerName });
+          }
+        };
+
+        webSocketSignaling.onmessage = (msgEvent) => {
+          try {
+            const data = JSON.parse(msgEvent.data);
+            handleSignalingMessage(data);
+          } catch(e) {}
+        };
+      } catch (err) {
+        // Fallback to BroadcastChannel for local/enterprise subnets
+      }
+    }
+
+    function sendSignal(payload) {
+      if (webSocketSignaling && webSocketSignaling.readyState === WebSocket.OPEN) {
+        const dest = activeRoomCode + (isHost ? '-guest' : '-host');
+        webSocketSignaling.send(JSON.stringify({
+          type: 'SIGNAL',
+          dst: dest,
+          src: activeRoomCode + (isHost ? '-host' : '-guest'),
+          payload: payload
+        }));
+      }
+    }
+
+    function handleSignalingMessage(msg) {
+      if (msg.type === 'SIGNAL' && msg.payload) {
+        handleIncomingNetworkMessage(msg.payload);
+      } else if (msg.type === 'GUEST_HELLO' || (msg.payload && msg.payload.type === 'GUEST_HELLO')) {
+        const name = (msg.payload && msg.payload.name) || msg.name || 'CHALLENGER';
+        onOpponentConnected(name);
+      }
+    }
+
+    function broadcastMessage(msgObject) {
+      // Send over BroadcastChannel
+      if (broadcastChannel) {
+        try {
+          broadcastChannel.postMessage(msgObject);
+        } catch (e) {}
+      }
+      // Send over WebRTC Data Channel if open
+      if (dataChannel && dataChannel.readyState === 'open') {
+        try {
+          dataChannel.send(JSON.stringify(msgObject));
+        } catch (e) {}
+      }
+      // Send over signaling fallback
+      sendSignal(msgObject);
+    }
+
+    function handleIncomingNetworkMessage(msg) {
+      if (!msg || typeof msg !== 'object') return;
+
+      switch (msg.type) {
+        case 'PEER_JOIN':
+          onOpponentConnected(msg.playerName);
+          if (isHost) {
+            // Mirror current host config to newly joined player
+            broadcastMessage({
+              type: 'LOBBY_STATE_SYNC',
+              category: currentSelectedCategory,
+              rounds: totalMatchRounds,
+              hostName: localPlayerName
+            });
+          }
+          break;
+
+        case 'LOBBY_STATE_SYNC':
+          if (!isHost) {
+            currentSelectedCategory = msg.category;
+            totalMatchRounds = msg.rounds;
+            opponentPlayerName = msg.hostName || 'HOST';
+            applyLobbySyncForChallenger(msg);
+          }
+          break;
+
+        case 'MATCH_LAUNCH':
+          onMatchLaunchedByHost(msg);
+          break;
+
+        case 'ROUND_QUESTION':
+          onReceiveSynchronizedQuestion(msg);
+          break;
+
+        case 'ANSWER_LOCKED':
+          onOpponentAnswerLocked(msg);
+          break;
+
+        case 'ROUND_REVEAL':
+          onSynchronizedRoundReveal(msg);
+          break;
+
+        case 'ADVANCE_ROUND':
+          onAdvanceRoundReceived(msg);
+          break;
+
+        case 'C4_MOVE':
+          handleIncomingC4Move(msg.col);
+          break;
+
+        case 'QUICKDRAW_TRIGGER':
+          handleIncomingQuickDraw(msg.reactionTime);
+          break;
+      }
+    }
+
+    function onOpponentConnected(name) {
+      isOpponentConnected = true;
+      opponentPlayerName = name || 'CHALLENGER';
+      playSound('correct');
+
+      const desc = document.getElementById('connStatusDescription');
+      const hint = document.getElementById('connStatusHint');
+      const pulse = document.getElementById('connPulseDot');
+      const p2Display = document.getElementById('p2NameDisplay');
+
+      if (desc) desc.textContent = `Challenger Linked: ${opponentPlayerName} is in the lobby!`;
+      if (hint) {
+        hint.textContent = 'READY TO LAUNCH';
+        hint.className = 'badge badge-cyan';
+      }
+      if (pulse) pulse.style.color = 'var(--positive)';
+      if (p2Display) p2Display.textContent = opponentPlayerName;
+
+      const launchBtn = document.getElementById('btnLaunchMatch');
+      if (launchBtn && isHost) {
+        launchBtn.disabled = false;
+        launchBtn.textContent = '⚡ LAUNCH SHOWDOWN';
+      }
+    }
+
+    // ==========================================
+    // QUESTION DATABASE: 5 DIVERSE CATEGORIES
+    // ==========================================
+    const QUESTION_BANKS = {
+      bones: [
+        {
+          q: `Examining a mammalian skull, you note a complete absence of upper incisors, replaced instead by a hard fibrous dental pad, alongside prominent cornual processes (horn cores) and an elongated facial diastema. What species does this specimen belong to?`,
+          choices: [`Awassi Sheep (Ovis aries)`, `Domestic Dog (Canis familiaris)`, `Domestic Cat (Felis catus)`, `Equine Horse (Equus caballus)`],
+          answer: `Awassi Sheep (Ovis aries)`,
+          expl: `Ruminants such as sheep possess a dental pad rather than upper incisors, paired with horn cores and a pronounced diastema separating premolars from incisors.`
+        },
+        {
+          q: `An archaeologist excavates an appendicular skeletal limb featuring hollow pneumatised thin-walled cortices, an expanded carina (keel) on the sternum, and a rigid fused synsacrum. What class of animal produced this skeleton?`,
+          choices: [`Avian (Bird)`, `Equine (Horse)`, `Canine (Dog)`, `Human (Homo sapiens)`],
+          answer: `Avian (Bird)`,
+          expl: `Pneumatised hollow bones reduce flight mass, while the keeled sternum anchors pectoralis flight muscles and the synsacrum provides rigid pelvic support during flight and landing.`
+        },
+        {
+          q: `In human forensic osteology, which anatomical landmark is uniquely diagnostic of modern Homo sapiens and completely absent in all other extant primates and archaic hominins?`,
+          choices: [`Mental protuberance (prominent chin)`, `Mastoid process`, `Zygomatic arch`, `Infraglenoid tubercle`],
+          answer: `Mental protuberance (prominent chin)`,
+          expl: `The mental protuberance of the mandible (chin) is an evolutionary hallmark found exclusively in modern Homo sapiens.`
+        },
+        {
+          q: `A veterinary surgeon inspects a limb specimen and identifies a massive third metacarpal (cannon bone), flanked by reduced vestigial second and fourth splint bones, terminating in a distal sesamoid (navicular bone). Which animal does this limb belong to?`,
+          choices: [`Horse (Equus caballus)`, `Greyhound (Canis familiaris)`, `Awassi Ram`, `Human (Homo sapiens)`],
+          answer: `Horse (Equus caballus)`,
+          expl: `The equine distal limb relies on a single functional digit (the third metacarpal or cannon bone), vestigial splint bones, and a passive stay apparatus for sleeping while standing.`
+        },
+        {
+          q: `Inspection of a predator's dentition reveals blade-like carnassial shear teeth formed by the maxillary 4th premolar (P4) and mandibular 1st molar (M1), paired with a short, rounded facial profile and large orbits. Which animal is this?`,
+          choices: [`Cat (Felis catus)`, `Sheep (Ovis aries)`, `Horse (Equus caballus)`, `Pigeon (Columba livia)`],
+          answer: `Cat (Felis catus)`,
+          expl: `Felids possess hypercarnivorous dentition with specialised carnassial shears, shortened snouts, and enlarged orbits adapted for crepuscular hunting.`
+        },
+        {
+          q: `In cranial osteology, multiple intrasutural accessory bones (Wormian bones) are noted along the lambdoid suture. In clinical medicine, an excessive abundance of Wormian bones is a cardinal sign of which genetic disorder?`,
+          choices: [`Osteogenesis Imperfecta`, `Fibrodysplasia ossificans`, `Achondroplasia`, `Paget's disease of bone`],
+          answer: `Osteogenesis Imperfecta`,
+          expl: `Osteogenesis Imperfecta (brittle bone disease) characteristically causes defective ossification that results in numerous mosaic Wormian bones along cranial suture lines.`
+        },
+        {
+          q: `Which vertebral bone possesses a superior projection known as the odontoid process (dens), around which the atlas pivots to allow shaking the head 'no'?`,
+          choices: [`C2 Vertebra (Axis)`, `C1 Vertebra (Atlas)`, `C7 Vertebra Prominens`, `T1 Thoracic Vertebra`],
+          answer: `C2 Vertebra (Axis)`,
+          expl: `The axis (second cervical vertebra) features the dens or odontoid process, acting as a pivot upon which the atlas rotates.`
+        },
+        {
+          q: `Which pelvic adaptation is characteristic of the human bipedal skeleton compared to quadrupedal mammals?`,
+          choices: [`Broad, bowl-shaped flared iliac blades`, `Narrow elongated vertical ilium`, `Complete absence of the ischial spine`, `Fused rigid synsacrum`],
+          answer: `Broad, bowl-shaped flared iliac blades`,
+          expl: `The human pelvis is compressed vertically and flared into a broad bowl shape to support the visceral weight of an upright torso during bipedal locomotion.`
+        }
+      ],
+      deaths: [
+        {
+          q: `According to historical accounts by Diogenes Laërtius, how did the 3rd-century BC Greek Stoic philosopher Chrysippus of Soli perish?`,
+          choices: [
+            `Died of laughter after giving neat wine to his donkey and watching it eat figs`,
+            `Leapt directly into the volcanic caldera of Mount Etna`,
+            `Crushed by an overturned marble chariot in Athens`,
+            `Suffocated by holding his breath after stubbing his toe`
+          ],
+          answer: `Died of laughter after giving neat wine to his donkey and watching it eat figs`,
+          expl: `Chrysippus watched his drunken donkey stumble trying to eat figs from a bowl, reportedly quipping 'Now give the ass a drink of pure wine to wash down the figs!', dying of uncontrollable laughter.`
+        },
+        {
+          q: `King Adolf Frederick of Sweden (reigned 1751–1771) is remembered in history as 'the king who ate himself to death'. Which dessert meal sealed his fate on 12 February 1771?`,
+          choices: [
+            `Fourteen servings of semla buns soaked in hot milk, after lobster, caviar and champagne`,
+            `A banquet of five entire roast peacocks stuffed with candied chestnuts`,
+            `A massive vat of fermented Baltic herring (surströmming)`,
+            `Twenty-four butter pastries and half a gallon of mead`
+          ],
+          answer: `Fourteen servings of semla buns soaked in hot milk, after lobster, caviar and champagne`,
+          expl: `Adolf Frederick consumed an enormous feast of lobster, caviar, sauerkraut, kippers and champagne, topped off with 14 bowls of his favourite pastry, semla, served in warm milk.`
+        },
+        {
+          q: `In 1626, philosopher and statesman Sir Francis Bacon died of fatal pneumonia. What scientific experiment directly brought on his fatal chill?`,
+          choices: [
+            `Stuffing a slaughtered chicken with snow to test refrigeration`,
+            `Spending three nights in an unheated crypt observing mercury fumes`,
+            `Testing a waterproof diving bell in the freezing River Thames`,
+            `Inhaling crushed ice fumes to cure asthma`
+          ],
+          answer: `Stuffing a slaughtered chicken with snow to test refrigeration`,
+          expl: `Bacon bought a hen from a woman at Highgate and stuffed it with snow to see if cold delayed putrefaction, contracting a fatal bout of pneumonia in the process.`
+        },
+        {
+          q: `In 1329, the Italian warlord and patron of Dante, Cangrande della Scala, died suddenly after capturing Treviso. What lethal compound was discovered in his exhumed liver and digestive tract centuries later?`,
+          choices: [
+            `Foxglove (Digitalis / Digoxin poisoning)`,
+            `Hemlock (Coniine alkaloid)`,
+            `Arsenic trioxide`,
+            `Deadly nightshade (Belladonna)`
+          ],
+          answer: `Foxglove (Digitalis / Digoxin poisoning)`,
+          expl: `Modern forensic paleopathology discovered high concentrations of digitalis (foxglove) in Cangrande's mummified tissues, proving he was poisoned.`
+        },
+        {
+          q: `In 1673, French playwright Molière collapsed during a live performance of which of his own plays, dying only minutes after leaving the stage?`,
+          choices: [
+            `The Imaginary Invalid (Le Malade imaginaire)`,
+            `Tartuffe`,
+            `The Misanthrope`,
+            `The Miser (L'Avare)`
+          ],
+          answer: `The Imaginary Invalid (Le Malade imaginaire)`,
+          expl: `In a tragic twist of dramatic irony, Molière, suffering from severe pulmonary tuberculosis, suffered a violent coughing fit while playing the hypochondriac Argan in 'The Imaginary Invalid'.`
+        },
+        {
+          q: `At the 1587 execution of Mary, Queen of Scots at Fotheringhay Castle, what bizarre series of events shocked the spectators after the executioner held her severed head aloft?`,
+          choices: [
+            `Her hair proved to be an auburn wig, her head tumbled to the boards, and her small lapdog emerged from her skirts`,
+            `The executioner slipped on her velvet cape and broke both his collarbones`,
+            `A pet falcon flew into the hall and struck the executioner's block`,
+            `Her pet terrier leaped into the crowd carrying her rosary beads`
+          ],
+          answer: `Her hair proved to be an auburn wig, her head tumbled to the boards, and her small lapdog emerged from her skirts`,
+          expl: `The executioner Bull botched the first two strikes, and upon holding up her head by the hair, the wig slipped off, dropping her head, while her pet dog emerged terrified from her petticoats.`
+        },
+        {
+          q: `How did the Roman-era mathematician and engineer Archimedes famously meet his end during the Siege of Syracuse in 212 BC?`,
+          choices: [
+            `Killed by a Roman soldier after commanding him: 'Do not disturb my circles!'`,
+            `Crushed by the collapse of his own giant naval claw crane`,
+            `Accidentally burned by the reflection of his own solar parabolic mirrors`,
+            `Poisoned by hemlock after being captured at sea`
+          ],
+          answer: `Killed by a Roman soldier after commanding him: 'Do not disturb my circles!'`,
+          expl: `Archimedes was absorbed in geometric diagrams drawn in the sand when a Roman soldier burst in; Archimedes told him not to disturb his calculations, and the soldier slew him.`
+        }
+      ],
+      pub: [
+        {
+          q: `Under Section 32 of the UK Salmon Act 1986, what notoriously specific activity is classified as an illegal criminal offence?`,
+          choices: [
+            `Handling salmon under suspicious circumstances`,
+            `Selling Scottish smoked salmon without a royal seal`,
+            `Feeding fresh salmon to swans on the River Thames`,
+            `Transporting salmon across county borders on a Sunday`
+          ],
+          answer: `Handling salmon under suspicious circumstances`,
+          expl: `Section 32 of the Salmon Act 1986 makes it an offence to handle salmon in circumstances where one suspects or believes the fish was illegally poached.`
+        },
+        {
+          q: `Under the UK Road Traffic Act 1988, why can tapping a phone at a drive-through restaurant technically incur a £200 fine and 6 penalty points?`,
+          choices: [
+            `Using a mobile phone while the engine is running and the handbrake is off`,
+            `Ordering food electronically without displaying physical currency`,
+            `Taking digital photos of private drive-through menus`,
+            `Using contactless payments outside of designated banking hours`
+          ],
+          answer: `Using a mobile phone while the engine is running and the handbrake is off`,
+          expl: `If the vehicle's engine is running and the handbrake is disengaged, UK law treats holding a mobile phone at a drive-through as driving while using a handheld mobile phone.`
+        },
+        {
+          q: `In 1535, King Henry VIII famously enacted a tax on what personal appearance feature, later reintroduced by Elizabeth I for periods exceeding two weeks?`,
+          choices: [`Facial hair and beards`, `Wearing imported Spanish velvet`, `Carrying ornate walking canes`, `Wearing silk ruffs larger than 12 inches`],
+          answer: `Facial hair and beards`,
+          expl: `Henry VIII introduced a graduated beard tax in 1535 based on social standing; Elizabeth I later revived it targeting anyone growing a beard for over two weeks.`
+        },
+        {
+          q: `What is the famous operational motto of the British Army's Brigade of Gurkhas, translated from Nepali ('Kāpar hunu bhandā marnu rāmro')?`,
+          choices: [
+            `Better to die than live a coward`,
+            `Who Dares Wins`,
+            `By Strength and Guile`,
+            `Fear Naught`
+          ],
+          answer: `Better to die than live a coward`,
+          expl: `'Kāpar hunu bhandā marnu rāmro' (Better to die than live a coward) is the renowned motto of the Royal Gurkha Rifles.`
+        },
+        {
+          q: `In the hit UK BBC television drama 'Peaky Blinders', which industrial British city serves as the primary home base for the Shelby family?`,
+          choices: [`Birmingham`, `Manchester`, `Leeds`, `Sheffield`],
+          answer: `Birmingham`,
+          expl: `Peaky Blinders is set in the Small Heath district of Birmingham, following the Shelby family's syndicate.`
+        },
+        {
+          q: `Which British television quiz show, hosted by Anne Robinson, popularized the ruthless exit catchphrase: 'You are the weakest link, goodbye!'?`,
+          choices: [`The Weakest Link`, `University Challenge`, `Mastermind`, `Eggheads`],
+          answer: `The Weakest Link`,
+          expl: `The Weakest Link premiered on BBC in 2000, known for Anne Robinson's stern persona and iconic dismissal catchphrase.`
+        }
+      ],
+      weapons: [
+        {
+          q: `Which 5.56×45mm NATO bullpup assault rifle has served as the standard-issue service weapon of the British Armed Forces since 1985, later dramatically upgraded by Heckler & Koch into the A2 and A3 variants?`,
+          choices: [`SA80 / L85A2`, `FN FAL (L1A1 SLR)`, `Sten Gun Mk II`, `EM-2 Rifle`],
+          answer: `SA80 / L85A2`,
+          expl: `The SA80 (L85A2) is Britain's bullpup standard service rifle, known for its compact layout and extensive mid-life reliability redesign by Heckler & Koch.`
+        },
+        {
+          q: `Which iconic British bolt-action rifle, chambered in .303 British with a smooth rear-locking bolt and 10-round magazine, famously facilitated the rapid-fire 'mad minute' in World War I and II?`,
+          choices: [`Lee-Enfield (No. 4 Mk I / SMLE)`, `Karabiner 98k`, `M1 Garand`, `Mosin-Nagant M91/30`],
+          answer: `Lee-Enfield (No. 4 Mk I / SMLE)`,
+          expl: `The Lee-Enfield featured a cock-on-closing bolt mechanism that enabled trained riflemen to consistently achieve 15 to 30 aimed shots per minute during 'mad minute' drills.`
+        },
+        {
+          q: `What is the name of the British Army's Main Battle Tank, distinguished as the only modern Western tank to employ a rifled main gun (120mm L30A1) and proprietary Dorchester (Chobham) composite armour?`,
+          choices: [`Challenger 2`, `Leopard 2A7`, `M1A2 Abrams`, `Centurion Mk 13`],
+          answer: `Challenger 2`,
+          expl: `The Challenger 2 uses the 120mm L30A1 rifled tank gun, firing High Explosive Squash Head (HESH) and APFSDS rounds, protected by heavy Dorchester composite armour.`
+        },
+        {
+          q: `Which groundbreaking British aircraft, engineered by Hawker Siddeley and powered by the Rolls-Royce Pegasus vectored-thrust engine, pioneered operational V/STOL (vertical/short takeoff and landing)?`,
+          choices: [`Harrier Jump Jet`, `Eurofighter Typhoon`, `Gloster Meteor`, `SEPECAT Jaguar`],
+          answer: `Harrier Jump Jet`,
+          expl: `The Harrier Jump Jet utilized four rotating thrust nozzles powered by the Pegasus turbofan to achieve vertical takeoff and hover capability.`
+        },
+        {
+          q: `Chambered in .338 Lapua Magnum and manufactured by Accuracy International, which weapon holds historical military fame as the British Army's L115A3 Long Range Rifle?`,
+          choices: [`Accuracy International AWM (L115A3)`, `Barrett M82A1`, `CheyTac M200 Intervention`, `Steyr SSG 69`],
+          answer: `Accuracy International AWM (L115A3)`,
+          expl: `The L115A3 is the British military's premier long-range sniper rifle, used by Corporal of Horse Craig Harrison in 2009 for a confirmed 2,475-metre kill.`
+        },
+        {
+          q: `What cheap, stamped-metal 9×19mm submachine gun with a distinct horizontal side-mounted box magazine was mass-produced by Britain in WWII to replace weapons lost at Dunkirk?`,
+          choices: [`Sten Submachine Gun`, `Lanchester SMG`, `Sterling L2A3`, `Thompson M1A1`],
+          answer: `Sten Submachine Gun`,
+          expl: `The Sten (named for Shepherd, Turpin, and Enfield) cost just over £2 to manufacture and featured a horizontal 32-round box magazine and stamped tubular receiver.`
+        }
+      ],
+      camo: [
+        {
+          q: `Identify the camouflage pattern displayed below. First issued by the British Army in the late 1960s, it features organic undulating brushstrokes of woodland green, russet brown, and black over a khaki/sand base:`,
+          swatchType: `dpm`,
+          choices: [`British DPM (Disruptive Pattern Material)`, `British MTP (Multi-Terrain Pattern)`, `CADPAT Temperate Woodland`, `German Flecktarn`],
+          answer: `British DPM (Disruptive Pattern Material)`,
+          expl: `Disruptive Pattern Material (DPM) was Britain's legendary 4-colour woodland pattern used for over 40 years across the Falklands War and the Gulf War.`
+        },
+        {
+          q: `Identify the modern camouflage pattern displayed below. Introduced under the UK's PECOC programme in 2010 to replace DPM, it blends Crye Multicam colour tones with British disruptive micro-shapes:`,
+          swatchType: `mtp`,
+          choices: [`British MTP (Multi-Terrain Pattern)`, `German Flecktarn`, `Rhodesian Brushstroke`, `Naval Dazzle`],
+          answer: `British MTP (Multi-Terrain Pattern)`,
+          expl: `Multi-Terrain Pattern (MTP) was developed to provide multi-environment concealment in Afghanistan and worldwide, blending DPM shapes with a multi-terrain palette.`
+        },
+        {
+          q: `Identify the digital camouflage pattern displayed below. Fielded by Canada in 1997/2002, it was the world's first computer-designed, dual-scale pixelated digital camouflage issued army-wide:`,
+          swatchType: `cadpat`,
+          choices: [`CADPAT (Canadian Disruptive Pattern)`, `US Marine MARPAT`, `Russian Digital Flora`, `British DPM`],
+          answer: `CADPAT (Canadian Disruptive Pattern)`,
+          expl: `CADPAT was the pioneer pixelated digital camouflage system, developed by the Canadian Armed Forces and inspiring subsequent designs like USMC MARPAT.`
+        },
+        {
+          q: `Identify the 5-colour camouflage pattern displayed below. Developed for the German Bundeswehr, it consists of organic pea-dot mottling and dense stipples to disrupt outlines in European foliage:`,
+          swatchType: `flecktarn`,
+          choices: [`German Flecktarn`, `Splittertarn (Splinter)`, `Naval Dazzle`, `Rhodesian Brushstroke`],
+          answer: `German Flecktarn`,
+          expl: `Flecktarn (from 'Fleck' spot and 'Tarnung' camouflage) uses small, mottled dots to eliminate sharp boundary lines, mimicking dappled woodland sunlight.`
+        },
+        {
+          q: `Identify the geometric camouflage pattern displayed below. Characterised by angular polygonal geometric splinters overlaid with fine vertical 'rain lines' (Strichmuster):`,
+          swatchType: `splittertarn`,
+          choices: [`Splittertarn (Splinter Camouflage)`, `Naval Dazzle`, `CADPAT`, `British MTP`],
+          answer: `Splittertarn (Splinter Camouflage)`,
+          expl: `Splittertarn (Splinter pattern 31) combined sharp geometric polygons with fine vertical rain strokes to disrupt optical silhouette perception.`
+        },
+        {
+          q: `Identify the stark optical camouflage pattern displayed below. Pioneered during WWI by marine artist Norman Wilkinson, it uses bold contrasting geometric zig-zags and stripes not to conceal a ship, but to confuse submarine optical rangefinders:`,
+          swatchType: `dazzle`,
+          choices: [`Naval Dazzle (Razzle Dazzle)`, `Splittertarn`, `CADPAT Arid`, `British DPM Desert`],
+          answer: `Naval Dazzle (Razzle Dazzle)`,
+          expl: `Dazzle camouflage used optical disruption and contrasting zebra-like geometric vectors to deceive U-boat periscope operators regarding a vessel's heading, speed, and range.`
+        },
+        {
+          q: `Identify the pattern displayed below. Created in the 1960s using broad, sweeping diagonal paint strokes of contrasting dark green and chocolate brown across a sandy base:`,
+          swatchType: `rhodesian`,
+          choices: [`Rhodesian Brushstroke`, `British DPM`, `German Flecktarn`, `CADPAT`],
+          answer: `Rhodesian Brushstroke`,
+          expl: `Rhodesian Brushstroke was applied with broad painter's strokes to blend into savanna bush and remains widely celebrated for high-contrast woodland effectiveness.`
+        }
+      ]
+    };
+
+    // ==========================================
+    // PROCEDURAL VECTOR CAMOUFLAGE SWATCHES
+    // Inline SVG - Zero external images
+    // ==========================================
+    function generateVectorCamouflageSVG(type) {
+      if (type === 'dpm') {
+        // British DPM: 4-color organic brushstroke woodland waves
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="British DPM Camouflage Swatch">
+            <rect width="340" height="150" fill="#887e58"/>
+            <!-- Forest Green Brushstrokes -->
+            <path d="M-10,30 Q30,10 80,45 T170,30 T260,60 T350,20 L350,70 Q280,100 200,65 T80,90 T-10,60 Z" fill="#38492c"/>
+            <path d="M40,110 Q110,80 180,120 T290,100 T360,140 L360,160 L20,160 Z" fill="#38492c"/>
+            <!-- Russet Earth Brown -->
+            <path d="M10,-10 Q90,30 140,-5 T240,25 T320,-10 L300,45 Q210,15 130,40 T0,20 Z" fill="#543b2c"/>
+            <path d="M-10,95 Q60,130 130,90 T240,125 T350,95 L350,130 Q270,160 170,135 T30,150 Z" fill="#543b2c"/>
+            <!-- Dense Black Feathered Edges -->
+            <path d="M20,40 Q60,25 90,50 T150,35 Q120,60 80,55 Z" fill="#181c15"/>
+            <path d="M180,50 Q230,30 270,65 T320,40 Q280,75 220,60 Z" fill="#181c15"/>
+            <path d="M100,105 Q150,85 190,115 T260,95 Q220,135 150,120 Z" fill="#181c15"/>
+          </svg>
+        `;
+      } else if (type === 'mtp') {
+        // British MTP: Multi-Terrain organic blended blobs
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="British MTP Camouflage Swatch">
+            <rect width="340" height="150" fill="#a89a78"/>
+            <!-- Medium Khaki Blobs -->
+            <path d="M0,0 Q60,40 110,10 T220,30 T320,10 T350,50 L350,0 Z" fill="#887858"/>
+            <path d="M-10,90 Q50,60 120,95 T240,70 T350,110 L350,150 L-10,150 Z" fill="#887858"/>
+            <!-- Olive Sage Shapes -->
+            <path d="M30,40 Q90,20 140,55 T230,35 T310,65 Q260,95 190,75 T70,80 Z" fill="#586241"/>
+            <path d="M120,105 Q180,85 240,115 T330,95 Q290,140 210,130 T80,140 Z" fill="#586241"/>
+            <!-- Cream Highlights -->
+            <ellipse cx="60" cy="50" rx="18" ry="8" fill="#c4bc9e" transform="rotate(-15, 60, 50)"/>
+            <ellipse cx="200" cy="40" rx="22" ry="10" fill="#c4bc9e" transform="rotate(10, 200, 40)"/>
+            <ellipse cx="280" cy="120" rx="24" ry="9" fill="#c4bc9e" transform="rotate(-8, 280, 120)"/>
+            <!-- Deep Brown Micro Blobs -->
+            <path d="M150,60 Q175,50 190,65 Q170,80 145,72 Z" fill="#3c2f24"/>
+            <path d="M260,35 Q280,25 295,40 Q280,55 255,48 Z" fill="#3c2f24"/>
+            <path d="M40,100 Q65,90 80,105 Q60,120 35,112 Z" fill="#3c2f24"/>
+          </svg>
+        `;
+      } else if (type === 'cadpat') {
+        // Canadian CADPAT: Dual-Scale Pixelated Digital Grid
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="CADPAT Digital Camouflage Swatch">
+            <defs>
+              <pattern id="cadpatPixelGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <rect width="10" height="10" fill="#495f35"/>
+              </pattern>
+            </defs>
+            <rect width="340" height="150" fill="#495f35"/>
+            <!-- Dark Green Pixel Clusters -->
+            <g fill="#24371f">
+              <rect x="20" y="10" width="40" height="20"/>
+              <rect x="50" y="20" width="30" height="30"/>
+              <rect x="130" y="40" width="50" height="30"/>
+              <rect x="160" y="60" width="40" height="30"/>
+              <rect x="230" y="10" width="60" height="30"/>
+              <rect x="260" y="30" width="30" height="40"/>
+              <rect x="40" y="90" width="70" height="30"/>
+              <rect x="180" y="100" width="60" height="40"/>
+              <rect x="280" y="90" width="50" height="40"/>
+            </g>
+            <!-- Earth Brown Pixel Clusters -->
+            <g fill="#463628">
+              <rect x="70" y="10" width="30" height="20"/>
+              <rect x="90" y="30" width="40" height="30"/>
+              <rect x="190" y="20" width="40" height="30"/>
+              <rect x="100" y="80" width="50" height="30"/>
+              <rect x="230" y="70" width="50" height="30"/>
+              <rect x="10" y="110" width="40" height="30"/>
+              <rect x="230" y="110" width="40" height="30"/>
+            </g>
+            <!-- Black High-Contrast Micro Pixels -->
+            <g fill="#121810">
+              <rect x="30" y="20" width="20" height="10"/>
+              <rect x="150" y="50" width="20" height="10"/>
+              <rect x="250" y="20" width="20" height="20"/>
+              <rect x="70" y="100" width="30" height="10"/>
+              <rect x="200" y="120" width="20" height="10"/>
+            </g>
+          </svg>
+        `;
+      } else if (type === 'flecktarn') {
+        // German Flecktarn: 5-colour mottled pea-dot stipples
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="German Flecktarn Camouflage Swatch">
+            <rect width="340" height="150" fill="#4d5a37"/>
+            <!-- Grey Green Mottling -->
+            <circle cx="40" cy="30" r="22" fill="#33422e"/>
+            <circle cx="65" cy="45" r="16" fill="#33422e"/>
+            <circle cx="170" cy="50" r="28" fill="#33422e"/>
+            <circle cx="270" cy="40" r="24" fill="#33422e"/>
+            <circle cx="110" cy="110" r="26" fill="#33422e"/>
+            <circle cx="220" cy="120" r="30" fill="#33422e"/>
+            <!-- Red Brown Patches -->
+            <circle cx="90" cy="25" r="18" fill="#5a3928"/>
+            <circle cx="130" cy="45" r="14" fill="#5a3928"/>
+            <circle cx="210" cy="35" r="20" fill="#5a3928"/>
+            <circle cx="50" cy="115" r="22" fill="#5a3928"/>
+            <circle cx="160" cy="110" r="18" fill="#5a3928"/>
+            <circle cx="290" cy="105" r="25" fill="#5a3928"/>
+            <!-- Olive Yellow Dots -->
+            <circle cx="30" cy="65" r="9" fill="#787e49"/>
+            <circle cx="120" cy="80" r="11" fill="#787e49"/>
+            <circle cx="250" cy="75" r="12" fill="#787e49"/>
+            <circle cx="310" cy="40" r="8" fill="#787e49"/>
+            <circle cx="80" cy="140" r="10" fill="#787e49"/>
+            <!-- Dense Black Pea Stipples -->
+            <g fill="#181d14">
+              <circle cx="45" cy="35" r="6"/> <circle cx="58" cy="28" r="5"/> <circle cx="38" cy="46" r="4"/>
+              <circle cx="165" cy="45" r="7"/> <circle cx="180" cy="55" r="6"/> <circle cx="155" cy="60" r="5"/>
+              <circle cx="265" cy="35" r="8"/> <circle cx="282" cy="48" r="5"/> <circle cx="255" cy="50" r="6"/>
+              <circle cx="105" cy="105" r="7"/> <circle cx="120" cy="118" r="5"/> <circle cx="95" cy="122" r="6"/>
+              <circle cx="215" cy="115" r="8"/> <circle cx="230" cy="128" r="6"/> <circle cx="205" cy="130" r="5"/>
+            </g>
+          </svg>
+        `;
+      } else if (type === 'splittertarn') {
+        // Splittertarn: Angular geometric polygons with vertical rain lines
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="Splittertarn Camouflage Swatch">
+            <defs>
+              <pattern id="rainLines" width="6" height="12" patternUnits="userSpaceOnUse">
+                <line x1="2" y1="0" x2="2" y2="7" stroke="#25351e" stroke-width="1.2"/>
+              </pattern>
+            </defs>
+            <rect width="340" height="150" fill="#8d8468"/>
+            <!-- Geometric Sharp Splinter Polygons -->
+            <polygon points="0,0 80,0 120,40 50,70 0,40" fill="#425137"/>
+            <polygon points="140,0 240,0 280,35 190,50 160,20" fill="#584330"/>
+            <polygon points="270,0 340,0 340,60 300,45" fill="#425137"/>
+            <polygon points="40,80 130,55 180,95 110,130 30,110" fill="#584330"/>
+            <polygon points="190,65 290,45 320,110 240,135 180,105" fill="#425137"/>
+            <polygon points="0,110 60,100 80,150 0,150" fill="#584330"/>
+            <polygon points="120,135 220,115 250,150 100,150" fill="#425137"/>
+            <polygon points="280,125 340,95 340,150 260,150" fill="#584330"/>
+            <!-- Strichmuster (Hatched Vertical Rain Overlay) -->
+            <rect width="340" height="150" fill="url(#rainLines)" opacity="0.65"/>
+          </svg>
+        `;
+      } else if (type === 'dazzle') {
+        // Naval Dazzle: Bold contrasting geometric black and white zigzags
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="Naval Dazzle Camouflage Swatch">
+            <rect width="340" height="150" fill="#eae8e4"/>
+            <polygon points="0,0 60,0 30,70 0,60" fill="#111116"/>
+            <polygon points="60,0 130,0 70,80 30,70" fill="#555866"/>
+            <polygon points="130,0 210,0 170,100 110,80" fill="#111116"/>
+            <polygon points="210,0 300,0 260,90 200,80" fill="#2d303b"/>
+            <polygon points="300,0 340,0 340,70 290,60" fill="#111116"/>
+            <!-- Lower Inverted Chevron Strips -->
+            <polygon points="0,80 80,100 40,150 0,150" fill="#111116"/>
+            <polygon points="80,100 160,85 130,150 40,150" fill="#2d303b"/>
+            <polygon points="160,85 240,110 190,150 130,150" fill="#111116"/>
+            <polygon points="240,110 320,80 280,150 190,150" fill="#555866"/>
+            <polygon points="320,80 340,90 340,150 280,150" fill="#111116"/>
+          </svg>
+        `;
+      } else if (type === 'rhodesian') {
+        // Rhodesian Brushstroke: Broad dark green and brown diagonal strokes on sand
+        return `
+          <svg width="340" height="150" viewBox="0 0 340 150" style="border-radius: var(--rounded); box-shadow: 0 4px 12px rgba(0,0,0,0.6);" aria-label="Rhodesian Brushstroke Camouflage Swatch">
+            <rect width="340" height="150" fill="#b3a479"/>
+            <!-- Dark Forest Green Broad Painterly Strokes -->
+            <polygon points="10,-20 80,-20 190,160 120,160" fill="#2d4529"/>
+            <polygon points="140,-20 200,-20 310,160 250,160" fill="#2d4529"/>
+            <polygon points="-40,40 10,40 80,160 30,160" fill="#2d4529"/>
+            <!-- Chocolate Brown Contrasting Counter-Strokes -->
+            <polygon points="70,-20 120,-20 230,160 180,160" fill="#3d2b1f"/>
+            <polygon points="220,-20 270,-20 370,140 320,140" fill="#3d2b1f"/>
+            <polygon points="-10,-10 30,-10 120,140 80,140" fill="#3d2b1f"/>
+          </svg>
+        `;
+      }
+      return '';
+    }
+
+    // ==========================================
+    // FISHER-YATES SHUFFLER (De-Biasing Choices)
+    // ==========================================
+    function fisherYatesShuffle(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+      }
+      return arr;
+    }
+
+    // ==========================================
+    // TOURNAMENT & MATCH STATE
+    // ==========================================
+    let currentSelectedCategory = 'all';
+    let totalMatchRounds = 10;
+    let currentRoundIndex = 0;
+    let matchQuestionDeck = [];
+    let activeQuestion = null;
+
+    let p1Score = 0;
+    let p2Score = 0;
+    let p1Streak = 0;
+    let p2Streak = 0;
+    let p1Answer = null;
+    let p2Answer = null;
+    let p1TimeElapsed = 0;
+    let p2TimeElapsed = 0;
+
+    let roundTimerInterval = null;
+    let roundStartTime = 0;
+    let roundSecondsRemaining = 15;
+    let isRoundLocked = false;
+    let aiSimTimeout = null;
+
+    // View Navigation
+    function showScreen(screenId) {
+      const screens = document.querySelectorAll('.game-screen');
+      screens.forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+    }
+
+    function confirmReturnHome() {
+      if (roundTimerInterval) clearInterval(roundTimerInterval);
+      if (aiSimTimeout) clearTimeout(aiSimTimeout);
+      showScreen('screenLanding');
+      const sb = document.getElementById('matchScoreboard');
+      if (sb) sb.style.display = 'none';
+      playSound('click');
+    }
+
+    function returnToLanding() {
+      confirmReturnHome();
+    }
+
+    function selectGameCategory(catKey) {
+      if (!isHost && !isSoloMode) return; // Host authority
+      currentSelectedCategory = catKey;
+      playSound('click');
+
+      const btns = document.querySelectorAll('.mode-select-btn');
+      btns.forEach(b => {
+        if (b.dataset.mode === catKey) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+
+      if (!isSoloMode && isHost) {
+        broadcastMessage({
+          type: 'LOBBY_STATE_SYNC',
+          category: currentSelectedCategory,
+          rounds: totalMatchRounds,
+          hostName: localPlayerName
+        });
+      }
+    }
+
+    function updateMatchConfig() {
+      if (!isHost && !isSoloMode) return;
+      const select = document.getElementById('matchRoundsSelect');
+      if (select) {
+        totalMatchRounds = parseInt(select.value, 10) || 10;
+      }
+      if (!isSoloMode && isHost) {
+        broadcastMessage({
+          type: 'LOBBY_STATE_SYNC',
+          category: currentSelectedCategory,
+          rounds: totalMatchRounds,
+          hostName: localPlayerName
+        });
+      }
+    }
+
+    function applyLobbySyncForChallenger(syncData) {
+      const btns = document.querySelectorAll('.mode-select-btn');
+      btns.forEach(b => {
+        if (b.dataset.mode === syncData.category) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+      const roundsSelect = document.getElementById('matchRoundsSelect');
+      if (roundsSelect) roundsSelect.value = syncData.rounds;
+
+      const notice = document.getElementById('authorityNotice');
+      if (notice) {
+        notice.textContent = 'HOST PICKED: ' + syncData.category.toUpperCase();
+        notice.className = 'badge badge-cyan';
+      }
+    }
+
+    function updatePlayerName(val) {
+      localPlayerName = val.trim() || (isHost ? 'HOST' : 'CHALLENGER');
+      const p1Disp = document.getElementById('p1NameDisplay');
+      if (p1Disp && isHost) p1Disp.textContent = localPlayerName;
+      const p2Disp = document.getElementById('p2NameDisplay');
+      if (p2Disp && !isHost) p2Disp.textContent = localPlayerName;
+    }
+
+    // ==========================================
+    // LOBBY INITIALISATION & HOSTING
+    // ==========================================
+    function setupHostLobby() {
+      isHost = true;
+      isSoloMode = false;
+      initAudio();
+      playSound('click');
+
+      const code = generateRoomCode();
+      const codeDisplay = document.getElementById('hostGeneratedCode');
+      const activeCodeDisplay = document.getElementById('lobbyActiveCode');
+      if (codeDisplay) codeDisplay.textContent = code;
+      if (activeCodeDisplay) activeCodeDisplay.textContent = code;
+
+      initNetworkChannel(code);
+
+      const p1Avatar = document.getElementById('p1Avatar');
+      const p1Badge = document.getElementById('p1Badge');
+      const p1Name = document.getElementById('p1NameDisplay');
+      if (p1Avatar) { p1Avatar.textContent = 'P1'; p1Avatar.className = 'player-avatar'; }
+      if (p1Badge) { p1Badge.textContent = 'HOST'; p1Badge.className = 'badge badge-pink'; }
+      if (p1Name) p1Name.textContent = localPlayerName;
+
+      const p2Avatar = document.getElementById('p2Avatar');
+      const p2Badge = document.getElementById('p2Badge');
+      const p2Name = document.getElementById('p2NameDisplay');
+      if (p2Avatar) { p2Avatar.textContent = 'P2'; p2Avatar.className = 'player-avatar cyan'; }
+      if (p2Badge) { p2Badge.textContent = 'CHALLENGER'; p2Badge.className = 'badge badge-cyan'; }
+      if (p2Name) p2Name.textContent = 'AWAITING...';
+
+      const launchBtn = document.getElementById('btnLaunchMatch');
+      if (launchBtn) {
+        launchBtn.disabled = true;
+        launchBtn.textContent = 'WAITING FOR CHALLENGER...';
+      }
+
+      showScreen('screenLobbyRoom');
+    }
+
+    function connectAsChallenger() {
+      isHost = false;
+      isSoloMode = false;
+      initAudio();
+      playSound('click');
+
+      const input = document.getElementById('challengerRoomInput');
+      const statusText = document.getElementById('joinStatusText');
+      let code = (input && input.value.trim().toUpperCase()) || '';
+
+      if (!code) {
+        if (statusText) statusText.textContent = 'Please enter a valid 4-character room code.';
+        return;
+      }
+      if (!code.startsWith('DUO-') && code.length === 4) {
+        code = 'duo-' + code;
+      } else {
+        code = code.toLowerCase();
+      }
+
+      if (statusText) statusText.textContent = `Connecting to ${code.toUpperCase()}...`;
+
+      initNetworkChannel(code);
+
+      // Send join ping over BroadcastChannel & signaling
+      setTimeout(() => {
+        broadcastMessage({
+          type: 'PEER_JOIN',
+          playerName: localPlayerName
+        });
+      }, 300);
+
+      const activeCodeDisplay = document.getElementById('lobbyActiveCode');
+      if (activeCodeDisplay) activeCodeDisplay.textContent = code.toUpperCase();
+
+      const p1Badge = document.getElementById('p1Badge');
+      const p2Badge = document.getElementById('p2Badge');
+      const p1Name = document.getElementById('p1NameDisplay');
+      const p2Name = document.getElementById('p2NameDisplay');
+
+      if (p1Badge) { p1Badge.textContent = 'HOST'; p1Badge.className = 'badge badge-pink'; }
+      if (p1Name) p1Name.textContent = 'HOST';
+      if (p2Badge) { p2Badge.textContent = 'YOU'; p2Badge.className = 'badge badge-cyan'; }
+      if (p2Name) p2Name.textContent = localPlayerName;
+
+      const launchBtn = document.getElementById('btnLaunchMatch');
+      if (launchBtn) {
+        launchBtn.disabled = true;
+        launchBtn.textContent = 'WAITING FOR HOST TO LAUNCH...';
+      }
+
+      const notice = document.getElementById('authorityNotice');
+      if (notice) {
+        notice.textContent = 'HOST HAS AUTHORITY';
+        notice.className = 'badge badge-pink';
+      }
+
+      showScreen('screenLobbyRoom');
+    }
+
+    function startSoloMatch() {
+      isHost = true;
+      isSoloMode = true;
+      isOpponentConnected = true;
+      initAudio();
+      playSound('click');
+
+      const select = document.getElementById('soloOpponentSelect');
+      const botType = (select && select.value) || 'cypher';
+
+      if (botType === 'bones') {
+        opponentPlayerName = 'Dr. Bones (AI)';
+      } else if (botType === 'pubquiz') {
+        opponentPlayerName = 'Prof. Barnaby (AI)';
+      } else {
+        opponentPlayerName = 'Sgt. Cypher (AI)';
+      }
+
+      localPlayerName = 'AGENT-ALPHA';
+      currentSelectedCategory = 'all';
+      totalMatchRounds = 10;
+
+      const p1Name = document.getElementById('p1NameDisplay');
+      const p2Name = document.getElementById('p2NameDisplay');
+      if (p1Name) p1Name.textContent = localPlayerName;
+      if (p2Name) p2Name.textContent = opponentPlayerName;
+
+      const p2Badge = document.getElementById('p2Badge');
+      if (p2Badge) { p2Badge.textContent = 'ARENA AI'; p2Badge.className = 'badge badge-cyan'; }
+
+      launchShowdownMatch();
+    }
+
+    // ==========================================
+    // MATCH COMPILER & DECK GENERATOR
+    // ==========================================
+    function compileMatchQuestionDeck() {
+      let pool = [];
+
+      if (currentSelectedCategory === 'all') {
+        // Mystery Tour: Blend questions across all 5 disciplines
+        Object.keys(QUESTION_BANKS).forEach(cat => {
+          QUESTION_BANKS[cat].forEach(item => {
+            pool.push(Object.assign({}, item, { categoryKey: cat }));
+          });
+        });
+      } else if (QUESTION_BANKS[currentSelectedCategory]) {
+        QUESTION_BANKS[currentSelectedCategory].forEach(item => {
+          pool.push(Object.assign({}, item, { categoryKey: currentSelectedCategory }));
+        });
+      }
+
+      // Shuffle question deck with Fisher-Yates
+      const shuffledDeck = fisherYatesShuffle(pool);
+      return shuffledDeck.slice(0, totalMatchRounds);
+    }
+
+    function launchShowdownMatch() {
+      if (currentSelectedCategory === 'quickdraw') {
+        startQuickDrawArena();
+        return;
+      }
+      if (currentSelectedCategory === 'tactical4') {
+        startTacticalFourArena();
+        return;
+      }
+
+      matchQuestionDeck = compileMatchQuestionDeck();
+      currentRoundIndex = 0;
+      p1Score = 0;
+      p2Score = 0;
+      p1Streak = 0;
+      p2Streak = 0;
+
+      updateScoreboardDisplays();
+
+      const scoreboard = document.getElementById('matchScoreboard');
+      if (scoreboard) scoreboard.style.display = 'grid';
+
+      if (!isSoloMode && isHost) {
+        broadcastMessage({
+          type: 'MATCH_LAUNCH',
+          deck: matchQuestionDeck,
+          rounds: totalMatchRounds,
+          category: currentSelectedCategory,
+          hostName: localPlayerName
+        });
+      }
+
+      serveCurrentRoundQuestion();
+    }
+
+    function onMatchLaunchedByHost(msg) {
+      matchQuestionDeck = msg.deck;
+      totalMatchRounds = msg.rounds;
+      currentSelectedCategory = msg.category;
+      opponentPlayerName = msg.hostName || 'HOST';
+      currentRoundIndex = 0;
+      p1Score = 0;
+      p2Score = 0;
+
+      updateScoreboardDisplays();
+
+      const scoreboard = document.getElementById('matchScoreboard');
+      if (scoreboard) scoreboard.style.display = 'grid';
+
+      serveCurrentRoundQuestion();
+    }
+
+    // ==========================================
+    // SYNCHRONIZED ANTI-SPOIL ROUND ENGINE
+    // ==========================================
+    function serveCurrentRoundQuestion() {
+      if (currentRoundIndex >= matchQuestionDeck.length) {
+        concludeMatchVictory();
+        return;
+      }
+
+      activeQuestion = matchQuestionDeck[currentRoundIndex];
+      isRoundLocked = false;
+      p1Answer = null;
+      p2Answer = null;
+      p1TimeElapsed = 0;
+      p2TimeElapsed = 0;
+
+      // Update round tracking HUD
+      const roundTracker = document.getElementById('roundTrackerText');
+      if (roundTracker) roundTracker.textContent = `ROUND ${currentRoundIndex + 1} / ${matchQuestionDeck.length}`;
+
+      const catBadge = document.getElementById('activeCategoryBadge');
+      const catKicker = document.getElementById('currentCategoryKicker');
+      const categoryNames = {
+        bones: 'COMPARATIVE OSTEOLOGY',
+        deaths: 'HISTORICAL DEATHS',
+        pub: 'BRITISH PUB & MILITARY TRIVIA',
+        weapons: 'ARMORY RECON',
+        camo: 'CAMOUFLAGE IDENTIFICATION'
+      };
+      const catTitle = categoryNames[activeQuestion.categoryKey] || 'TACTICAL TRIVIA';
+      if (catBadge) catBadge.textContent = catTitle;
+      if (catKicker) catKicker.textContent = 'DISCIPLINE: ' + catTitle;
+
+      const qNumBadge = document.getElementById('qNumberBadge');
+      if (qNumBadge) qNumBadge.textContent = `QUESTION ${currentRoundIndex + 1} OF ${matchQuestionDeck.length}`;
+
+      // Set prompt
+      const promptEl = document.getElementById('triviaPrompt');
+      if (promptEl) promptEl.textContent = activeQuestion.q;
+
+      // Vector camouflage swatch check
+      const swatchContainer = document.getElementById('visualSwatchContainer');
+      const swatchTarget = document.getElementById('swatchGraphicTarget');
+      if (activeQuestion.swatchType && swatchContainer && swatchTarget) {
+        swatchContainer.style.display = 'flex';
+        swatchTarget.innerHTML = generateVectorCamouflageSVG(activeQuestion.swatchType);
+      } else if (swatchContainer) {
+        swatchContainer.style.display = 'none';
+        if (swatchTarget) swatchTarget.innerHTML = '';
+      }
+
+      // De-bias answer choices via Fisher-Yates shuffle
+      const shuffledChoices = fisherYatesShuffle(activeQuestion.choices);
+      renderAnswerButtons(shuffledChoices);
+
+      // Reset banners & reveal panels
+      const lockBanner = document.getElementById('lockInBanner');
+      const lockText = document.getElementById('lockInText');
+      const oppIndicator = document.getElementById('opponentLockIndicator');
+      const revealBox = document.getElementById('roundRevealBox');
+
+      if (lockBanner) { lockBanner.className = 'lock-in-banner'; }
+      if (lockText) lockText.textContent = 'SELECT AN OPTION TO ENGAGE...';
+      if (oppIndicator) {
+        oppIndicator.textContent = 'OPPONENT: THINKING...';
+        oppIndicator.className = 'badge badge-outline';
+      }
+      if (revealBox) revealBox.classList.remove('active');
+
+      const p1Status = document.getElementById('p1StatusText');
+      const p2Status = document.getElementById('p2StatusText');
+      if (p1Status) p1Status.textContent = 'STATUS: THINKING...';
+      if (p2Status) p2Status.textContent = 'STATUS: THINKING...';
+
+      showScreen('screenTriviaArena');
+      startRoundCountdownTimer();
+
+      // If playing Solo against AI, schedule simulated AI response
+      if (isSoloMode) {
+        scheduleSimulatedAIResponse();
+      }
+    }
+
+    function renderAnswerButtons(choices) {
+      const container = document.getElementById('triviaChoicesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const keys = ['A', 'B', 'C', 'D'];
+      choices.forEach((choiceText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.id = `choiceBtn_${idx}`;
+        btn.dataset.choice = choiceText;
+        btn.onclick = () => handlePlayerChoiceCommit(choiceText, btn);
+
+        const keySpan = document.createElement('span');
+        keySpan.className = 'choice-key';
+        keySpan.textContent = keys[idx] || (idx + 1);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'choice-text';
+        textSpan.textContent = choiceText;
+
+        btn.appendChild(keySpan);
+        btn.appendChild(textSpan);
+        container.appendChild(btn);
+      });
+    }
+
+    function startRoundCountdownTimer() {
+      if (roundTimerInterval) clearInterval(roundTimerInterval);
+      roundStartTime = Date.now();
+      roundSecondsRemaining = 15;
+
+      const timerBar = document.getElementById('timerBarFill');
+      const timerSecs = document.getElementById('timerTextSeconds');
+
+      if (timerBar) {
+        timerBar.style.width = '100%';
+        timerBar.className = 'timer-bar-fill';
+      }
+      if (timerSecs) timerSecs.textContent = '15.0s';
+
+      roundTimerInterval = setInterval(() => {
+        const elapsed = (Date.now() - roundStartTime) / 1000;
+        const remaining = Math.max(0, 15 - elapsed);
+
+        if (timerSecs) timerSecs.textContent = remaining.toFixed(1) + 's';
+        if (timerBar) {
+          const pct = Math.max(0, (remaining / 15) * 100);
+          timerBar.style.width = pct + '%';
+
+          if (remaining <= 4 && !timerBar.classList.contains('critical')) {
+            timerBar.className = 'timer-bar-fill critical';
+            playSound('tick');
+          } else if (remaining <= 8 && remaining > 4 && !timerBar.classList.contains('warning')) {
+            timerBar.className = 'timer-bar-fill warning';
+          }
+        }
+
+        if (remaining <= 0) {
+          clearInterval(roundTimerInterval);
+          onRoundTimerExpired();
+        }
+      }, 100);
+    }
+
+    function handlePlayerChoiceCommit(choiceText, buttonEl) {
+      if (isRoundLocked) return;
+      const elapsed = (Date.now() - roundStartTime) / 1000;
+
+      if (isHost) {
+        p1Answer = choiceText;
+        p1TimeElapsed = elapsed;
+      } else {
+        p2Answer = choiceText;
+        p2TimeElapsed = elapsed;
+      }
+
+      playSound('lock');
+
+      // Highlight locally locked choice
+      buttonEl.classList.add('selected-locked');
+
+      // Disable all buttons to prevent double click
+      const allBtns = document.querySelectorAll('.choice-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      // Lock-In Banner
+      const lockBanner = document.getElementById('lockInBanner');
+      const lockText = document.getElementById('lockInText');
+      if (lockBanner) lockBanner.classList.add('locked');
+      if (lockText) lockText.textContent = '🔒 ANSWER LOCKED IN! WAITING FOR OPPONENT...';
+
+      const pStatus = isHost ? document.getElementById('p1StatusText') : document.getElementById('p2StatusText');
+      if (pStatus) pStatus.textContent = `STATUS: LOCKED (${elapsed.toFixed(1)}s)`;
+
+      // Transmit locked signal to peer
+      broadcastMessage({
+        type: 'ANSWER_LOCKED',
+        player: isHost ? 'p1' : 'p2',
+        timeElapsed: elapsed,
+        choice: choiceText // Passed to peer; kept hidden until reveal
+      });
+
+      checkBothPlayersSubmitted();
+    }
+
+    function onOpponentAnswerLocked(msg) {
+      if (msg.player === 'p1') {
+        p1Answer = msg.choice;
+        p1TimeElapsed = msg.timeElapsed;
+        const p1Status = document.getElementById('p1StatusText');
+        if (p1Status) p1Status.textContent = 'STATUS: LOCKED IN 🔒';
+      } else {
+        p2Answer = msg.choice;
+        p2TimeElapsed = msg.timeElapsed;
+        const p2Status = document.getElementById('p2StatusText');
+        if (p2Status) p2Status.textContent = 'STATUS: LOCKED IN 🔒';
+      }
+
+      const oppIndicator = document.getElementById('opponentLockIndicator');
+      if (oppIndicator) {
+        oppIndicator.textContent = '⚡ OPPONENT LOCKED IN!';
+        oppIndicator.className = 'badge badge-cyan';
+      }
+
+      checkBothPlayersSubmitted();
+    }
+
+    function scheduleSimulatedAIResponse() {
+      if (aiSimTimeout) clearTimeout(aiSimTimeout);
+      // Realistic human reaction window: 3 to 11 seconds
+      const simulatedDelay = Math.random() * 6000 + 3500;
+
+      aiSimTimeout = setTimeout(() => {
+        if (!activeQuestion || isRoundLocked) return;
+
+        // 75% chance correct, 25% distractor pick
+        let aiPick = activeQuestion.answer;
+        if (Math.random() > 0.75) {
+          const wrongChoices = activeQuestion.choices.filter(c => c !== activeQuestion.answer);
+          aiPick = wrongChoices[Math.floor(Math.random() * wrongChoices.length)];
+        }
+
+        const elapsed = (Date.now() - roundStartTime) / 1000;
+        p2Answer = aiPick;
+        p2TimeElapsed = elapsed;
+
+        const oppIndicator = document.getElementById('opponentLockIndicator');
+        if (oppIndicator) {
+          oppIndicator.textContent = '⚡ OPPONENT LOCKED IN!';
+          oppIndicator.className = 'badge badge-cyan';
+        }
+
+        const p2Status = document.getElementById('p2StatusText');
+        if (p2Status) p2Status.textContent = `STATUS: LOCKED (${elapsed.toFixed(1)}s)`;
+
+        checkBothPlayersSubmitted();
+      }, simulatedDelay);
+    }
+
+    function onRoundTimerExpired() {
+      if (!p1Answer) { p1Answer = 'TIMEOUT'; p1TimeElapsed = 15; }
+      if (!p2Answer) { p2Answer = 'TIMEOUT'; p2TimeElapsed = 15; }
+      triggerSimultaneousReveal();
+    }
+
+    function checkBothPlayersSubmitted() {
+      if (p1Answer && p2Answer && !isRoundLocked) {
+        if (roundTimerInterval) clearInterval(roundTimerInterval);
+        triggerSimultaneousReveal();
+      }
+    }
+
+    // ==========================================
+    // SIMULTANEOUS REVEAL & SPEED SCORING
+    // ==========================================
+    function triggerSimultaneousReveal() {
+      isRoundLocked = true;
+      if (roundTimerInterval) clearInterval(roundTimerInterval);
+      if (aiSimTimeout) clearTimeout(aiSimTimeout);
+
+      const correctAnswer = activeQuestion.answer;
+      const p1Correct = (p1Answer === correctAnswer);
+      const p2Correct = (p2Answer === correctAnswer);
+
+      // Scoring: +100 base, + speed bonus up to +50 points
+      let p1Points = 0;
+      let p2Points = 0;
+
+      if (p1Correct) {
+        const speedBonus = Math.max(0, Math.round((15 - p1TimeElapsed) * 3.3));
+        p1Points = 100 + speedBonus;
+        p1Score += p1Points;
+        p1Streak++;
+      } else {
+        p1Streak = 0;
+      }
+
+      if (p2Correct) {
+        const speedBonus = Math.max(0, Math.round((15 - p2TimeElapsed) * 3.3));
+        p2Points = 100 + speedBonus;
+        p2Score += p2Points;
+        p2Streak++;
+      } else {
+        p2Streak = 0;
+      }
+
+      updateScoreboardDisplays();
+
+      // Highlight choice buttons on both screens
+      const buttons = document.querySelectorAll('.choice-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const text = btn.dataset.choice;
+
+        if (text === correctAnswer) {
+          btn.classList.add('is-correct');
+        } else if (text === p1Answer || text === p2Answer) {
+          btn.classList.add('is-wrong');
+        }
+
+        // Add pick indicators
+        if (text === p1Answer) {
+          const tag1 = document.createElement('span');
+          tag1.className = 'pick-tag p1-tag';
+          tag1.textContent = isHost ? 'YOU' : opponentPlayerName;
+          btn.appendChild(tag1);
+        }
+        if (text === p2Answer) {
+          const tag2 = document.createElement('span');
+          tag2.className = 'pick-tag p2-tag';
+          tag2.textContent = !isHost ? 'YOU' : opponentPlayerName;
+          btn.appendChild(tag2);
+        }
+      });
+
+      // Reveal summary container
+      const revealBox = document.getElementById('roundRevealBox');
+      const revealTitle = document.getElementById('revealOutcomeTitle');
+      const fastestBadge = document.getElementById('fastestTriggerBadge');
+      const explText = document.getElementById('revealExplanationText');
+      const deltaText = document.getElementById('pointsDeltaText');
+
+      if (p1Correct && p2Correct) {
+        if (revealTitle) revealTitle.textContent = 'BOTH PLAYERS CORRECT!';
+        playSound('correct');
+      } else if ((isHost && p1Correct) || (!isHost && p2Correct)) {
+        if (revealTitle) revealTitle.textContent = 'TACTICAL HIT! POINT SECURED';
+        playSound('correct');
+      } else {
+        if (revealTitle) revealTitle.textContent = 'INCORRECT ESTIMATION';
+        playSound('wrong');
+      }
+
+      if (fastestBadge) {
+        if (p1Correct && p2Correct) {
+          const fastest = p1TimeElapsed < p2TimeElapsed ? (isHost ? 'YOU' : opponentPlayerName) : (!isHost ? 'YOU' : opponentPlayerName);
+          const time = Math.min(p1TimeElapsed, p2TimeElapsed).toFixed(1);
+          fastestBadge.textContent = `FASTEST TRIGGER: ${fastest} (${time}s)`;
+        } else if (p1Correct) {
+          fastestBadge.textContent = `SOLO HIT: ${isHost ? 'YOU' : opponentPlayerName} (${p1TimeElapsed.toFixed(1)}s)`;
+        } else if (p2Correct) {
+          fastestBadge.textContent = `SOLO HIT: ${!isHost ? 'YOU' : opponentPlayerName} (${p2TimeElapsed.toFixed(1)}s)`;
+        } else {
+          fastestBadge.textContent = 'NO HIT RECORDED';
+        }
+      }
+
+      if (explText) explText.textContent = activeQuestion.expl;
+      if (deltaText) {
+        deltaText.textContent = `YOU: +${isHost ? p1Points : p2Points} PTS | OPPONENT: +${isHost ? p2Points : p1Points} PTS`;
+      }
+
+      if (revealBox) revealBox.classList.add('active');
+
+      // Countdown to next question (4 seconds)
+      let nextCountdown = 4;
+      const nextBadge = document.getElementById('nextRoundCountdown');
+      const nextInterval = setInterval(() => {
+        nextCountdown--;
+        if (nextBadge) nextBadge.textContent = `NEXT QUESTION IN ${nextCountdown}s...`;
+        if (nextCountdown <= 0) {
+          clearInterval(nextInterval);
+          advanceToNextQuestionOrTieBreaker();
+        }
+      }, 1000);
+    }
+
+    function advanceToNextQuestionOrTieBreaker() {
+      currentRoundIndex++;
+
+      // Check for round transition or game tie
+      if (currentRoundIndex < matchQuestionDeck.length) {
+        serveCurrentRoundQuestion();
+      } else {
+        // Deck complete: check if scores are tied!
+        if (p1Score === p2Score && p1Score > 0) {
+          // Tie-Breaker: Launch Quick Draw Reflex Duel!
+          startQuickDrawArena();
+        } else {
+          concludeMatchVictory();
+        }
+      }
+    }
+
+    function updateScoreboardDisplays() {
+      const p1ScoreEl = document.getElementById('p1ScoreDisplay');
+      const p2ScoreEl = document.getElementById('p2ScoreDisplay');
+      if (p1ScoreEl) p1ScoreEl.textContent = p1Score + ' PTS';
+      if (p2ScoreEl) p2ScoreEl.textContent = p2Score + ' PTS';
+    }
+
+    // ==========================================
+    // MINI-GAME 1: QUICK DRAW REFLEX DUEL
+    // ==========================================
+    let quickDrawState = 'WAIT';
+    let quickDrawStartTime = 0;
+    let quickDrawTimeout = null;
+    let localReactionTime = null;
+    let opponentReactionTime = null;
+
+    function startQuickDrawArena() {
+      showScreen('screenQuickDraw');
+      const arena = document.getElementById('quickDrawArenaBox');
+      const prompt = document.getElementById('quickDrawPromptText');
+      const sub = document.getElementById('quickDrawSubText');
+      const results = document.getElementById('quickDrawResultsStrip');
+
+      if (arena) arena.className = 'quickdraw-arena ready';
+      if (prompt) prompt.textContent = 'HOLSTER WEAPON...';
+      if (sub) sub.textContent = 'STAND BY FOR GREEN FLASH';
+      if (results) results.style.display = 'none';
+
+      quickDrawState = 'WAIT';
+      localReactionTime = null;
+      opponentReactionTime = null;
+
+      // Random hair-trigger delay: 2.2 to 5.0 seconds
+      const delay = Math.random() * 2800 + 2200;
+      if (quickDrawTimeout) clearTimeout(quickDrawTimeout);
+
+      quickDrawTimeout = setTimeout(() => {
+        triggerQuickDrawFireSignal();
+      }, delay);
+    }
+
+    function triggerQuickDrawFireSignal() {
+      quickDrawState = 'FIRE';
+      quickDrawStartTime = Date.now();
+      const arena = document.getElementById('quickDrawArenaBox');
+      const prompt = document.getElementById('quickDrawPromptText');
+      const sub = document.getElementById('quickDrawSubText');
+
+      if (arena) arena.className = 'quickdraw-arena fire';
+      if (prompt) prompt.textContent = '⚡ DRAW! ⚡';
+      if (sub) sub.textContent = 'TRIGGER NOW!';
+
+      playSound('gunshot');
+
+      if (isSoloMode) {
+        // AI reflex reaction: 210ms to 380ms
+        const aiReaction = Math.floor(Math.random() * 170 + 210);
+        setTimeout(() => {
+          handleIncomingQuickDraw(aiReaction);
+        }, aiReaction);
+      }
+    }
+
+    function handlePlayerChoiceQuickDraw() {
+      if (quickDrawState === 'WAIT') {
+        // False start penalty!
+        if (quickDrawTimeout) clearTimeout(quickDrawTimeout);
+        quickDrawState = 'PENALTY';
+        const prompt = document.getElementById('quickDrawPromptText');
+        const sub = document.getElementById('quickDrawSubText');
+        if (prompt) prompt.textContent = 'FALSE START!';
+        if (sub) sub.textContent = 'PREMATURE DISCHARGE (-100 PTS)';
+        playSound('wrong');
+
+        if (isHost) p1Score = Math.max(0, p1Score - 100);
+        else p2Score = Math.max(0, p2Score - 100);
+        updateScoreboardDisplays();
+
+        setTimeout(() => startQuickDrawArena(), 2000);
+        return;
+      }
+
+      if (quickDrawState === 'FIRE' && localReactionTime === null) {
+        localReactionTime = Date.now() - quickDrawStartTime;
+        playSound('lock');
+
+        const prompt = document.getElementById('quickDrawPromptText');
+        if (prompt) prompt.textContent = `SHOT FIRED: ${localReactionTime}ms`;
+
+        broadcastMessage({
+          type: 'QUICKDRAW_TRIGGER',
+          reactionTime: localReactionTime
+        });
+
+        checkQuickDrawResolution();
+      }
+    }
+
+    function handleIncomingQuickDraw(reactionTime) {
+      opponentReactionTime = reactionTime;
+      checkQuickDrawResolution();
+    }
+
+    function checkQuickDrawResolution() {
+      if (localReactionTime !== null && opponentReactionTime !== null) {
+        const results = document.getElementById('quickDrawResultsStrip');
+        const details = document.getElementById('quickDrawResultDetails');
+        const badge = document.getElementById('quickDrawWinnerBadge');
+
+        const p1Time = isHost ? localReactionTime : opponentReactionTime;
+        const p2Time = !isHost ? localReactionTime : opponentReactionTime;
+
+        if (details) {
+          details.textContent = `${isHost ? 'YOU' : opponentPlayerName}: ${p1Time}ms | ${!isHost ? 'YOU' : opponentPlayerName}: ${p2Time}ms`;
+        }
+
+        if (p1Time < p2Time) {
+          if (badge) {
+            badge.textContent = `${isHost ? 'YOU WIN' : opponentPlayerName + ' WINS'} THE DUEL!`;
+            badge.className = 'badge badge-pink';
+          }
+          p1Score += 250;
+        } else {
+          if (badge) {
+            badge.textContent = `${!isHost ? 'YOU WIN' : opponentPlayerName + ' WINS'} THE DUEL!`;
+            badge.className = 'badge badge-cyan';
+          }
+          p2Score += 250;
+        }
+
+        updateScoreboardDisplays();
+        if (results) results.style.display = 'block';
+      }
+    }
+
+    function advanceFromMiniGame() {
+      concludeMatchVictory();
+    }
+
+    // ==========================================
+    // MINI-GAME 2: TACTICAL FOUR (CONNECT FOUR)
+    // ==========================================
+    const C4_ROWS = 6;
+    const C4_COLS = 7;
+    let c4BoardGrid = [];
+    let c4CurrentTurn = 1; // 1 = P1 (Pink), 2 = P2 (Cyan)
+    let c4GameOver = false;
+
+    function startTacticalFourArena() {
+      showScreen('screenTacticalFour');
+      c4BoardGrid = Array.from({ length: C4_ROWS }, () => Array(C4_COLS).fill(0));
+      c4CurrentTurn = 1;
+      c4GameOver = false;
+
+      const resultBanner = document.getElementById('c4ResultBanner');
+      if (resultBanner) resultBanner.style.display = 'none';
+
+      updateC4TurnUI();
+      renderC4Board();
+    }
+
+    function renderC4Board() {
+      const board = document.getElementById('c4GameBoard');
+      if (!board) return;
+      board.innerHTML = '';
+
+      for (let r = 0; r < C4_ROWS; r++) {
+        for (let c = 0; c < C4_COLS; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'c4-cell';
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          cell.onclick = () => handleC4ColumnClick(c);
+
+          const val = c4BoardGrid[r][c];
+          if (val === 1) cell.classList.add('p1-chip');
+          if (val === 2) cell.classList.add('p2-chip');
+
+          board.appendChild(cell);
+        }
+      }
+    }
+
+    function updateC4TurnUI() {
+      const banner = document.getElementById('c4TurnBanner');
+      if (!banner) return;
+
+      const myTurn = (isHost && c4CurrentTurn === 1) || (!isHost && c4CurrentTurn === 2);
+      if (myTurn) {
+        banner.textContent = `YOUR TURN (${c4CurrentTurn === 1 ? 'PINK' : 'CYAN'})`;
+        banner.className = c4CurrentTurn === 1 ? 'badge badge-pink' : 'badge badge-cyan';
+      } else {
+        banner.textContent = `OPPONENT'S TURN (${c4CurrentTurn === 1 ? 'PINK' : 'CYAN'})`;
+        banner.className = 'badge badge-outline';
+      }
+    }
+
+    function handleC4ColumnClick(colIndex) {
+      if (c4GameOver) return;
+      const myTurn = (isHost && c4CurrentTurn === 1) || (!isHost && c4CurrentTurn === 2);
+      if (!myTurn && !isSoloMode) return;
+
+      makeC4Drop(colIndex, c4CurrentTurn);
+
+      broadcastMessage({
+        type: 'C4_MOVE',
+        col: colIndex
+      });
+
+      if (isSoloMode && !c4GameOver && c4CurrentTurn === 2) {
+        // AI bot counter-move
+        setTimeout(() => {
+          makeAIC4Move();
+        }, 600);
+      }
+    }
+
+    function handleIncomingC4Move(colIndex) {
+      if (!c4GameOver) {
+        makeC4Drop(colIndex, c4CurrentTurn);
+      }
+    }
+
+    function makeC4Drop(col, playerNum) {
+      // Find lowest available row in column
+      let targetRow = -1;
+      for (let r = C4_ROWS - 1; r >= 0; r--) {
+        if (c4BoardGrid[r][col] === 0) {
+          targetRow = r;
+          break;
+        }
+      }
+      if (targetRow === -1) return; // Column full
+
+      c4BoardGrid[targetRow][col] = playerNum;
+      playSound('click');
+      renderC4Board();
+
+      if (checkC4Win(playerNum)) {
+        c4GameOver = true;
+        handleC4Victory(playerNum);
+      } else {
+        c4CurrentTurn = c4CurrentTurn === 1 ? 2 : 1;
+        updateC4TurnUI();
+      }
+    }
+
+    function checkC4Win(p) {
+      // Horizontal
+      for (let r = 0; r < C4_ROWS; r++) {
+        for (let c = 0; c < C4_COLS - 3; c++) {
+          if (c4BoardGrid[r][c] === p && c4BoardGrid[r][c+1] === p && c4BoardGrid[r][c+2] === p && c4BoardGrid[r][c+3] === p) return true;
+        }
+      }
+      // Vertical
+      for (let c = 0; c < C4_COLS; c++) {
+        for (let r = 0; r < C4_ROWS - 3; r++) {
+          if (c4BoardGrid[r][c] === p && c4BoardGrid[r+1][c] === p && c4BoardGrid[r+2][c] === p && c4BoardGrid[r+3][c] === p) return true;
+        }
+      }
+      // Diagonal Down-Right
+      for (let r = 0; r < C4_ROWS - 3; r++) {
+        for (let c = 0; c < C4_COLS - 3; c++) {
+          if (c4BoardGrid[r][c] === p && c4BoardGrid[r+1][c+1] === p && c4BoardGrid[r+2][c+2] === p && c4BoardGrid[r+3][c+3] === p) return true;
+        }
+      }
+      // Diagonal Up-Right
+      for (let r = 3; r < C4_ROWS; r++) {
+        for (let c = 0; c < C4_COLS - 3; c++) {
+          if (c4BoardGrid[r][c] === p && c4BoardGrid[r-1][c+1] === p && c4BoardGrid[r-2][c+2] === p && c4BoardGrid[r-3][c+3] === p) return true;
+        }
+      }
+      return false;
+    }
+
+    function makeAIC4Move() {
+      // Heuristic AI: check if winning move or blocking move exists
+      let validCols = [];
+      for (let c = 0; c < C4_COLS; c++) {
+        if (c4BoardGrid[0][c] === 0) validCols.push(c);
+      }
+      if (validCols.length === 0) return;
+
+      // Prefer center columns
+      const preferred = [3, 2, 4, 1, 5, 0, 6];
+      let chosen = validCols[0];
+      for (let col of preferred) {
+        if (validCols.includes(col)) {
+          chosen = col;
+          break;
+        }
+      }
+      makeC4Drop(chosen, 2);
+    }
+
+    function handleC4Victory(winnerNum) {
+      playSound('fanfare');
+      const banner = document.getElementById('c4ResultBanner');
+      const text = document.getElementById('c4WinnerText');
+
+      const isHostWinner = (winnerNum === 1);
+      if (text) {
+        text.textContent = `VICTORY! ${isHostWinner ? (isHost ? 'YOU' : opponentPlayerName) : (!isHost ? 'YOU' : opponentPlayerName)} CONNECTS 4!`;
+      }
+      if (isHostWinner) p1Score += 300;
+      else p2Score += 300;
+
+      updateScoreboardDisplays();
+      if (banner) banner.style.display = 'block';
+    }
+
+    // ==========================================
+    // FINAL MATCH VICTORY CEREMONY
+    // ==========================================
+    function concludeMatchVictory() {
+      showScreen('screenVictory');
+      playSound('fanfare');
+
+      const sb = document.getElementById('matchScoreboard');
+      if (sb) sb.style.display = 'none';
+
+      const title = document.getElementById('victoryBannerTitle');
+      const sub = document.getElementById('victorySubtitle');
+      const p1N = document.getElementById('vicP1Name');
+      const p2N = document.getElementById('vicP2Name');
+      const p1S = document.getElementById('vicP1Score');
+      const p2S = document.getElementById('vicP2Score');
+
+      if (p1N) p1N.textContent = isHost ? localPlayerName : opponentPlayerName;
+      if (p2N) p2N.textContent = !isHost ? localPlayerName : opponentPlayerName;
+      if (p1S) p1S.textContent = p1Score.toLocaleString();
+      if (p2S) p2S.textContent = p2Score.toLocaleString();
+
+      if (p1Score > p2Score) {
+        if (title) title.textContent = `CHAMPION: ${isHost ? localPlayerName : opponentPlayerName}`;
+        if (sub) sub.textContent = `${isHost ? 'You dominated' : opponentPlayerName + ' dominated'} the showdown with tactical speed and superior recall.`;
+      } else if (p2Score > p1Score) {
+        if (title) title.textContent = `CHAMPION: ${!isHost ? localPlayerName : opponentPlayerName}`;
+        if (sub) sub.textContent = `${!isHost ? 'You claimed' : opponentPlayerName + ' claimed'} victory through relentless accuracy.`;
+      } else {
+        if (title) title.textContent = 'HONOURABLE DRAW!';
+        if (sub) sub.textContent = 'Both combatants finished with perfectly synchronized scores.';
+      }
+    }
+
+    function restartMatchSameSettings() {
+      launchShowdownMatch();
+    }
+
+    // Quick draw trigger alias
+    function handleQuickDrawTrigger() {
+      handlePlayerChoiceQuickDraw();
+    }
+
+    // Initialize document handlers on load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Audio warmup on first user gesture
+      window.addEventListener('click', () => initAudio(), { once: true });
+      window.addEventListener('keydown', () => initAudio(), { once: true });
+    });
+  </script>
+</body>
+</html>
